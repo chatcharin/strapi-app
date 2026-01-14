@@ -1,0 +1,58 @@
+{
+  "kind": "collectionType",
+  "collectionName": "chats",
+  "info": {
+    "singularName": "chat",
+    "pluralName": "chats",
+    "displayName": "Chat",
+    "description": "Chat conversations with AI"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "model_provider": {
+      "type": "string",
+      "default": "openai"
+    },
+    "model_name": {
+      "type": "string",
+      "default": "gpt-3.5-turbo"
+    },
+    "category_id": {
+      "type": "string"
+    },
+    "knowledge": {
+      "type": "string"
+    },
+    "rag_enabled": {
+      "type": "boolean",
+      "default": false
+    },
+    "category": {
+      "type": "string"
+    },
+    "metadata": {
+      "type": "json"
+    },
+    "message_count": {
+      "type": "integer",
+      "default": 0
+    },
+    "user": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user"
+    },
+    "messages": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::message.message",
+      "mappedBy": "chat"
+    }
+  }
+}

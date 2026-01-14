@@ -1,0 +1,35 @@
+{
+    "kind": "collectionType",
+    "collectionName": "knowledge_bases",
+    "info": {
+        "singularName": "knowledge-base",
+        "pluralName": "knowledge-bases",
+        "displayName": "Knowledge Base",
+        "description": "Technical configuration for a RAG Knowledge Base"
+    },
+    "options": {
+        "draftAndPublish": false
+    },
+    "attributes": {
+        "general": {
+            "type": "json",
+            "required": true
+        },
+        "model": {
+            "type": "json",
+            "required": true
+        },
+        "permissions": {
+            "type": "json"
+        },
+        "data_masking": {
+            "type": "json"
+        },
+        "parsing": {
+            "type": "json"
+        },
+        "status": {
+            "type": "json"
+        }
+    }
+}
