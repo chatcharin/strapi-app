@@ -1,0 +1,11 @@
+{
+  "actions": {
+    "public": {
+      "find": true,
+      "findOne": true,
+      "create": true,
+      "update": true,
+      "delete": true
+    }
+  }
+}
