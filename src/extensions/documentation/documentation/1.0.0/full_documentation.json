@@ -1,17 +1,5 @@
 {
-  "openapi": {
-    "info": {
-      "version": "3.0.0",
-      "title": "Documentation",
-      "description": "API documentation"
-    },
-    "servers": [
-      {
-        "url": "http://localhost:1337",
-        "description": "Development server"
-      }
-    ]
-  },
+  "openapi": "3.0.0",
   "info": {
     "version": "1.0.0",
     "title": "DOCUMENTATION",
@@ -26,7 +14,7 @@
       "name": "Apache 2.0",
       "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
     },
-    "x-generation-date": "2026-01-19T09:42:18.384Z"
+    "x-generation-date": "2026-01-19T09:52:30.182Z"
   },
   "x-strapi-config": {
     "plugins": [
