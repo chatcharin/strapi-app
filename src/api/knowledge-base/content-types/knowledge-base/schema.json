@@ -5,31 +5,25 @@
         "singularName": "knowledge-base",
         "pluralName": "knowledge-bases",
         "displayName": "Knowledge Base",
-        "description": "Technical configuration for a RAG Knowledge Base"
+        "description": "Category/หมวดหมู่สำหรับจัดกลุ่มเอกสาร"
     },
     "options": {
         "draftAndPublish": false
     },
     "attributes": {
-        "general": {
-            "type": "json",
-            "required": true
+        "name": {
+            "type": "string",
+            "required": true,
+            "unique": true
         },
-        "model": {
-            "type": "json",
-            "required": true
+        "description": {
+            "type": "text"
         },
-        "permissions": {
-            "type": "json"
-        },
-        "data_masking": {
-            "type": "json"
-        },
-        "parsing": {
-            "type": "json"
-        },
-        "status": {
-            "type": "json"
+        "documents": {
+            "type": "relation",
+            "relation": "oneToMany",
+            "target": "api::document.document",
+            "mappedBy": "knowledge_base"
         }
     }
 }

@@ -1,0 +1,57 @@
+{
+    "kind": "collectionType",
+    "collectionName": "documents",
+    "info": {
+        "singularName": "document",
+        "pluralName": "documents",
+        "displayName": "Document",
+        "description": "เอกสารที่อัพโหลดเข้าสู่ Knowledge Base"
+    },
+    "options": {
+        "draftAndPublish": false
+    },
+    "attributes": {
+        "filename": {
+            "type": "string",
+            "required": true
+        },
+        "file_type": {
+            "type": "string",
+            "required": true
+        },
+        "file_size": {
+            "type": "integer",
+            "required": true
+        },
+        "file_id": {
+            "type": "integer",
+            "required": true
+        },
+        "file_url": {
+            "type": "string",
+            "required": true
+        },
+        "status": {
+            "type": "enumeration",
+            "enum": ["pending", "processing", "completed", "error"],
+            "default": "pending",
+            "required": true
+        },
+        "error_message": {
+            "type": "text"
+        },
+        "uploaded_at": {
+            "type": "datetime",
+            "required": true
+        },
+        "processed_at": {
+            "type": "datetime"
+        },
+        "knowledge_base": {
+            "type": "relation",
+            "relation": "manyToOne",
+            "target": "api::knowledge-base.knowledge-base",
+            "inversedBy": "documents"
+        }
+    }
+}

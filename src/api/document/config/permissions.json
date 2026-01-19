@@ -1,0 +1,9 @@
+{
+  "action": "plugin::content-manager.explorer.create",
+  "subject": "api::document.document",
+  "properties": {
+    "fields": ["filename", "file_type", "file_size", "file_id", "file_url", "status", "error_message", "uploaded_at", "processed_at", "knowledge_base"],
+    "populate": ["knowledge_base"]
+  },
+  "conditions": []
+}

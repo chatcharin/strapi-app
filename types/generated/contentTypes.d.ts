@@ -471,6 +471,51 @@ export interface ApiChatChat extends Struct.CollectionTypeSchema {
   };
 }
 
+export interface ApiDocumentDocument extends Struct.CollectionTypeSchema {
+  collectionName: 'documents';
+  info: {
+    description: '\u0E40\u0E2D\u0E01\u0E2A\u0E32\u0E23\u0E17\u0E35\u0E48\u0E2D\u0E31\u0E1E\u0E42\u0E2B\u0E25\u0E14\u0E40\u0E02\u0E49\u0E32\u0E2A\u0E39\u0E48 Knowledge Base';
+    displayName: 'Document';
+    pluralName: 'documents';
+    singularName: 'document';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    error_message: Schema.Attribute.Text;
+    file_id: Schema.Attribute.Integer & Schema.Attribute.Required;
+    file_size: Schema.Attribute.Integer & Schema.Attribute.Required;
+    file_type: Schema.Attribute.String & Schema.Attribute.Required;
+    file_url: Schema.Attribute.String & Schema.Attribute.Required;
+    filename: Schema.Attribute.String & Schema.Attribute.Required;
+    knowledge_base: Schema.Attribute.Relation<
+      'manyToOne',
+      'api::knowledge-base.knowledge-base'
+    >;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::document.document'
+    > &
+      Schema.Attribute.Private;
+    processed_at: Schema.Attribute.DateTime;
+    publishedAt: Schema.Attribute.DateTime;
+    status: Schema.Attribute.Enumeration<
+      ['pending', 'processing', 'completed', 'error']
+    > &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<'pending'>;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    uploaded_at: Schema.Attribute.DateTime & Schema.Attribute.Required;
+  };
+}
+
 export interface ApiGroupGroup extends Struct.CollectionTypeSchema {
   collectionName: 'groups';
   info: {
@@ -507,7 +552,7 @@ export interface ApiKnowledgeBaseKnowledgeBase
   extends Struct.CollectionTypeSchema {
   collectionName: 'knowledge_bases';
   info: {
-    description: 'Technical configuration for a RAG Knowledge Base';
+    description: 'Category/\u0E2B\u0E21\u0E27\u0E14\u0E2B\u0E21\u0E39\u0E48\u0E2A\u0E33\u0E2B\u0E23\u0E31\u0E1A\u0E08\u0E31\u0E14\u0E01\u0E25\u0E38\u0E48\u0E21\u0E40\u0E2D\u0E01\u0E2A\u0E32\u0E23';
     displayName: 'Knowledge Base';
     pluralName: 'knowledge-bases';
     singularName: 'knowledge-base';
@@ -519,19 +564,18 @@ export interface ApiKnowledgeBaseKnowledgeBase
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
-    data_masking: Schema.Attribute.JSON;
-    general: Schema.Attribute.JSON & Schema.Attribute.Required;
+    description: Schema.Attribute.Text;
+    documents: Schema.Attribute.Relation<'oneToMany', 'api::document.document'>;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
       'api::knowledge-base.knowledge-base'
     > &
       Schema.Attribute.Private;
-    model: Schema.Attribute.JSON & Schema.Attribute.Required;
-    parsing: Schema.Attribute.JSON;
-    permissions: Schema.Attribute.JSON;
+    name: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.Unique;
     publishedAt: Schema.Attribute.DateTime;
-    status: Schema.Attribute.JSON;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -1121,6 +1165,7 @@ declare module '@strapi/strapi' {
       'admin::transfer-token-permission': AdminTransferTokenPermission;
       'admin::user': AdminUser;
       'api::chat.chat': ApiChatChat;
+      'api::document.document': ApiDocumentDocument;
       'api::group.group': ApiGroupGroup;
       'api::knowledge-base.knowledge-base': ApiKnowledgeBaseKnowledgeBase;
       'api::message.message': ApiMessageMessage;
