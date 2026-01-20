@@ -14,7 +14,7 @@
       "name": "Apache 2.0",
       "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
     },
-    "x-generation-date": "2026-01-19T09:52:30.182Z"
+    "x-generation-date": "2026-01-20T07:12:20.330Z"
   },
   "x-strapi-config": {
     "plugins": [
@@ -5453,6 +5453,7 @@
         "properties": {
           "data": {
             "required": [
+              "docId",
               "filename",
               "file_type",
               "file_size",
@@ -5463,6 +5464,9 @@
             ],
             "type": "object",
             "properties": {
+              "docId": {
+                "type": "string"
+              },
               "filename": {
                 "type": "string"
               },
@@ -5568,6 +5572,7 @@
       "Document": {
         "type": "object",
         "required": [
+          "docId",
           "filename",
           "file_type",
           "file_size",
@@ -5581,6 +5586,9 @@
             "type": "number"
           },
           "documentId": {
+            "type": "string"
+          },
+          "docId": {
             "type": "string"
           },
           "filename": {
@@ -5633,6 +5641,15 @@
               "description": {
                 "type": "string"
               },
+              "allowAllUsers": {
+                "type": "boolean"
+              },
+              "selectedGroupIds": {},
+              "selectedUserIds": {},
+              "dataMasking": {},
+              "parsing": {},
+              "chunking": {},
+              "fileTypes": {},
               "documents": {
                 "type": "array",
                 "items": {
@@ -5642,6 +5659,9 @@
                       "type": "number"
                     },
                     "documentId": {
+                      "type": "string"
+                    },
+                    "docId": {
                       "type": "string"
                     },
                     "filename": {
@@ -6866,6 +6886,15 @@
               "description": {
                 "type": "string"
               },
+              "allowAllUsers": {
+                "type": "boolean"
+              },
+              "selectedGroupIds": {},
+              "selectedUserIds": {},
+              "dataMasking": {},
+              "parsing": {},
+              "chunking": {},
+              "fileTypes": {},
               "documents": {
                 "type": "array",
                 "items": {
@@ -6954,6 +6983,15 @@
           "description": {
             "type": "string"
           },
+          "allowAllUsers": {
+            "type": "boolean"
+          },
+          "selectedGroupIds": {},
+          "selectedUserIds": {},
+          "dataMasking": {},
+          "parsing": {},
+          "chunking": {},
+          "fileTypes": {},
           "documents": {
             "type": "array",
             "items": {
@@ -6963,6 +7001,9 @@
                   "type": "number"
                 },
                 "documentId": {
+                  "type": "string"
+                },
+                "docId": {
                   "type": "string"
                 },
                 "filename": {
@@ -7015,6 +7056,15 @@
                     "description": {
                       "type": "string"
                     },
+                    "allowAllUsers": {
+                      "type": "boolean"
+                    },
+                    "selectedGroupIds": {},
+                    "selectedUserIds": {},
+                    "dataMasking": {},
+                    "parsing": {},
+                    "chunking": {},
+                    "fileTypes": {},
                     "documents": {
                       "type": "array",
                       "items": {

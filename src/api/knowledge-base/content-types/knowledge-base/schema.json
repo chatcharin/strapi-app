@@ -19,6 +19,28 @@
         "description": {
             "type": "text"
         },
+        "allowAllUsers": {
+            "type": "boolean",
+            "default": false
+        },
+        "selectedGroupIds": {
+            "type": "json"
+        },
+        "selectedUserIds": {
+            "type": "json"
+        },
+        "dataMasking": {
+            "type": "json"
+        },
+        "parsing": {
+            "type": "json"
+        },
+        "chunking": {
+            "type": "json"
+        },
+        "fileTypes": {
+            "type": "json"
+        },
         "documents": {
             "type": "relation",
             "relation": "oneToMany",

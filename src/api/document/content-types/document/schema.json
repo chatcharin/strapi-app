@@ -11,6 +11,11 @@
         "draftAndPublish": false
     },
     "attributes": {
+        "docId": {
+            "type": "string",
+            "required": true,
+            "unique": true
+        },
         "filename": {
             "type": "string",
             "required": true

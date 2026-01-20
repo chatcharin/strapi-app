@@ -486,6 +486,9 @@ export interface ApiDocumentDocument extends Struct.CollectionTypeSchema {
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    docId: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.Unique;
     error_message: Schema.Attribute.Text;
     file_id: Schema.Attribute.Integer & Schema.Attribute.Required;
     file_size: Schema.Attribute.Integer & Schema.Attribute.Required;
@@ -561,11 +564,15 @@ export interface ApiKnowledgeBaseKnowledgeBase
     draftAndPublish: false;
   };
   attributes: {
+    allowAllUsers: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
+    chunking: Schema.Attribute.JSON;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    dataMasking: Schema.Attribute.JSON;
     description: Schema.Attribute.Text;
     documents: Schema.Attribute.Relation<'oneToMany', 'api::document.document'>;
+    fileTypes: Schema.Attribute.JSON;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
@@ -575,7 +582,10 @@ export interface ApiKnowledgeBaseKnowledgeBase
     name: Schema.Attribute.String &
       Schema.Attribute.Required &
       Schema.Attribute.Unique;
+    parsing: Schema.Attribute.JSON;
     publishedAt: Schema.Attribute.DateTime;
+    selectedGroupIds: Schema.Attribute.JSON;
+    selectedUserIds: Schema.Attribute.JSON;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
