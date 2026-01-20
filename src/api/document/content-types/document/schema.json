@@ -57,6 +57,12 @@
             "relation": "manyToOne",
             "target": "api::knowledge-base.knowledge-base",
             "inversedBy": "documents"
+        },
+        "workspace": {
+            "type": "relation",
+            "relation": "manyToOne",
+            "target": "api::workspace.workspace",
+            "inversedBy": "documents"
         }
     }
 }

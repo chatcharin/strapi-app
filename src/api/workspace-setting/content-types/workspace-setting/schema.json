@@ -1,0 +1,62 @@
+{
+  "kind": "collectionType",
+  "collectionName": "workspace_settings",
+  "info": {
+    "singularName": "workspace-setting",
+    "pluralName": "workspace-settings",
+    "displayName": "Workspace Setting",
+    "description": "Workspace user model settings"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "user": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user"
+    },
+    "model_name": {
+      "type": "text",
+      "required": true
+    },
+    "model_type": {
+      "type": "text",
+      "required": true
+    },
+    "icon_id": {
+      "type": "text"
+    },
+    "api_key": {
+      "type": "password",
+      "required": true,
+      "private": true
+    },
+    "api_url": {
+      "type": "text",
+      "required": true
+    },
+    "is_disable": {
+      "type": "boolean",
+      "default": false
+    },
+    "is_delete": {
+      "type": "boolean",
+      "default": false
+    },
+    "type": {
+      "type": "enumeration",
+      "enum": ["llm", "ocr", "embedding"]
+    },
+    "name": {
+      "type": "text"
+    },
+    "is_default": {
+      "type": "boolean",
+      "default": false
+    },
+    "tokens_limit": {
+      "type": "integer"
+    }
+  }
+}
