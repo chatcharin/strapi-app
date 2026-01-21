@@ -25,6 +25,36 @@
       "type": "relation",
       "relation": "manyToMany",
       "target": "plugin::users-permissions.user"
+    },
+    "chats": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::chat.chat",
+      "mappedBy": "workspace"
+    },
+    "documents": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::document.document",
+      "mappedBy": "workspace"
+    },
+    "knowledge_bases": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::knowledge-base.knowledge-base",
+      "mappedBy": "workspace"
+    },
+    "messages": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::message.message",
+      "mappedBy": "workspace"
+    },
+    "groups": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::group.group",
+      "mappedBy": "workspace"
     }
   }
 }

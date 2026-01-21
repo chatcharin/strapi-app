@@ -1,0 +1,24 @@
+{
+  "kind": "collectionType",
+  "collectionName": "model_icons",
+  "info": {
+    "singularName": "model-icon",
+    "pluralName": "model-icons",
+    "displayName": "Model Icon",
+    "description": "Icons for model/provider selection"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true,
+      "unique": true
+    },
+    "icon": {
+      "type": "text",
+      "required": true
+    }
+  }
+}

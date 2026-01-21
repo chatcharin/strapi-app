@@ -46,6 +46,12 @@
             "relation": "oneToMany",
             "target": "api::document.document",
             "mappedBy": "knowledge_base"
+        },
+        "workspace": {
+            "type": "relation",
+            "relation": "manyToOne",
+            "target": "api::workspace.workspace",
+            "inversedBy": "knowledge_bases"
         }
     }
 }

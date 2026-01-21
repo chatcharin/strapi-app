@@ -53,6 +53,12 @@
       "relation": "oneToMany",
       "target": "api::message.message",
       "mappedBy": "chat"
+    },
+    "workspace": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::workspace.workspace",
+      "inversedBy": "chats"
     }
   }
 }

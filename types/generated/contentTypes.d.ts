@@ -468,6 +468,10 @@ export interface ApiChatChat extends Struct.CollectionTypeSchema {
       'manyToOne',
       'plugin::users-permissions.user'
     >;
+    workspace: Schema.Attribute.Relation<
+      'manyToOne',
+      'api::workspace.workspace'
+    >;
   };
 }
 
@@ -516,6 +520,10 @@ export interface ApiDocumentDocument extends Struct.CollectionTypeSchema {
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
     uploaded_at: Schema.Attribute.DateTime & Schema.Attribute.Required;
+    workspace: Schema.Attribute.Relation<
+      'manyToOne',
+      'api::workspace.workspace'
+    >;
   };
 }
 
@@ -547,6 +555,10 @@ export interface ApiGroupGroup extends Struct.CollectionTypeSchema {
     users: Schema.Attribute.Relation<
       'manyToMany',
       'plugin::users-permissions.user'
+    >;
+    workspace: Schema.Attribute.Relation<
+      'manyToOne',
+      'api::workspace.workspace'
     >;
   };
 }
@@ -589,6 +601,10 @@ export interface ApiKnowledgeBaseKnowledgeBase
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    workspace: Schema.Attribute.Relation<
+      'manyToOne',
+      'api::workspace.workspace'
+    >;
   };
 }
 
@@ -627,6 +643,88 @@ export interface ApiMessageMessage extends Struct.CollectionTypeSchema {
       'manyToOne',
       'plugin::users-permissions.user'
     >;
+    workspace: Schema.Attribute.Relation<
+      'manyToOne',
+      'api::workspace.workspace'
+    >;
+  };
+}
+
+export interface ApiModelIconModelIcon extends Struct.CollectionTypeSchema {
+  collectionName: 'model_icons';
+  info: {
+    description: 'Icons for model/provider selection';
+    displayName: 'Model Icon';
+    pluralName: 'model-icons';
+    singularName: 'model-icon';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    icon: Schema.Attribute.Text & Schema.Attribute.Required;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::model-icon.model-icon'
+    > &
+      Schema.Attribute.Private;
+    name: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.Unique;
+    publishedAt: Schema.Attribute.DateTime;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
+export interface ApiWorkspaceSettingWorkspaceSetting
+  extends Struct.CollectionTypeSchema {
+  collectionName: 'workspace_settings';
+  info: {
+    description: 'Workspace user model settings';
+    displayName: 'Workspace Setting';
+    pluralName: 'workspace-settings';
+    singularName: 'workspace-setting';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    api_key: Schema.Attribute.Password &
+      Schema.Attribute.Required &
+      Schema.Attribute.Private;
+    api_url: Schema.Attribute.Text & Schema.Attribute.Required;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    icon_id: Schema.Attribute.Text;
+    is_default: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
+    is_delete: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
+    is_disable: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::workspace-setting.workspace-setting'
+    > &
+      Schema.Attribute.Private;
+    model_name: Schema.Attribute.Text & Schema.Attribute.Required;
+    model_type: Schema.Attribute.Text & Schema.Attribute.Required;
+    name: Schema.Attribute.Text;
+    publishedAt: Schema.Attribute.DateTime;
+    tokens_limit: Schema.Attribute.Integer;
+    type: Schema.Attribute.Enumeration<['llm', 'ocr', 'embedding']>;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    user: Schema.Attribute.Relation<
+      'manyToOne',
+      'plugin::users-permissions.user'
+    >;
   };
 }
 
@@ -642,9 +740,16 @@ export interface ApiWorkspaceWorkspace extends Struct.CollectionTypeSchema {
     draftAndPublish: false;
   };
   attributes: {
+    chats: Schema.Attribute.Relation<'oneToMany', 'api::chat.chat'>;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    documents: Schema.Attribute.Relation<'oneToMany', 'api::document.document'>;
+    groups: Schema.Attribute.Relation<'oneToMany', 'api::group.group'>;
+    knowledge_bases: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::knowledge-base.knowledge-base'
+    >;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
@@ -652,6 +757,7 @@ export interface ApiWorkspaceWorkspace extends Struct.CollectionTypeSchema {
     > &
       Schema.Attribute.Private;
     logo: Schema.Attribute.Media<'images'>;
+    messages: Schema.Attribute.Relation<'oneToMany', 'api::message.message'>;
     publishedAt: Schema.Attribute.DateTime;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
@@ -1119,7 +1225,6 @@ export interface PluginUsersPermissionsUser
   };
   options: {
     draftAndPublish: false;
-    timestamps: true;
   };
   attributes: {
     blocked: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
@@ -1179,6 +1284,8 @@ declare module '@strapi/strapi' {
       'api::group.group': ApiGroupGroup;
       'api::knowledge-base.knowledge-base': ApiKnowledgeBaseKnowledgeBase;
       'api::message.message': ApiMessageMessage;
+      'api::model-icon.model-icon': ApiModelIconModelIcon;
+      'api::workspace-setting.workspace-setting': ApiWorkspaceSettingWorkspaceSetting;
       'api::workspace.workspace': ApiWorkspaceWorkspace;
       'plugin::content-releases.release': PluginContentReleasesRelease;
       'plugin::content-releases.release-action': PluginContentReleasesReleaseAction;
