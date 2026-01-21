@@ -24,13 +24,15 @@
       "type": "text",
       "required": true
     },
+    "selected_models": {
+      "type": "json"
+    },
     "icon_id": {
       "type": "text"
     },
     "api_key": {
-      "type": "password",
-      "required": true,
-      "private": true
+      "type": "text",
+      "required": true
     },
     "api_url": {
       "type": "text",

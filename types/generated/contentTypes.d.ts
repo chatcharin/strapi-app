@@ -695,9 +695,7 @@ export interface ApiWorkspaceSettingWorkspaceSetting
     draftAndPublish: false;
   };
   attributes: {
-    api_key: Schema.Attribute.Password &
-      Schema.Attribute.Required &
-      Schema.Attribute.Private;
+    api_key: Schema.Attribute.Text & Schema.Attribute.Required;
     api_url: Schema.Attribute.Text & Schema.Attribute.Required;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
@@ -716,6 +714,7 @@ export interface ApiWorkspaceSettingWorkspaceSetting
     model_type: Schema.Attribute.Text & Schema.Attribute.Required;
     name: Schema.Attribute.Text;
     publishedAt: Schema.Attribute.DateTime;
+    selected_models: Schema.Attribute.JSON;
     tokens_limit: Schema.Attribute.Integer;
     type: Schema.Attribute.Enumeration<['llm', 'ocr', 'embedding']>;
     updatedAt: Schema.Attribute.DateTime;
