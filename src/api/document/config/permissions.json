@@ -1,9 +1,38 @@
-{
-  "action": "plugin::content-manager.explorer.create",
-  "subject": "api::document.document",
-  "properties": {
-    "fields": ["filename", "file_type", "file_size", "file_id", "file_url", "status", "error_message", "uploaded_at", "processed_at", "knowledge_base"],
-    "populate": ["knowledge_base"]
+[
+  {
+    "action": "plugin::content-manager.explorer.create",
+    "subject": "api::document.document",
+    "properties": {
+      "fields": ["filename", "file_type", "file_size", "file_id", "file_url", "status", "error_message", "uploaded_at", "processed_at", "knowledge_base"],
+      "populate": ["knowledge_base"]
+    },
+    "conditions": []
   },
-  "conditions": []
-}
+  {
+    "action": "plugin::content-manager.explorer.read",
+    "subject": "api::document.document",
+    "properties": {
+      "fields": ["filename", "file_type", "file_size", "file_id", "file_url", "status", "error_message", "uploaded_at", "processed_at", "knowledge_base"],
+      "populate": ["knowledge_base"]
+    },
+    "conditions": []
+  },
+  {
+    "action": "plugin::content-manager.explorer.update",
+    "subject": "api::document.document",
+    "properties": {
+      "fields": ["filename", "file_type", "file_size", "file_id", "file_url", "status", "error_message", "uploaded_at", "processed_at", "knowledge_base"],
+      "populate": ["knowledge_base"]
+    },
+    "conditions": []
+  },
+  {
+    "action": "plugin::content-manager.explorer.delete",
+    "subject": "api::document.document",
+    "properties": {
+      "fields": ["filename", "file_type", "file_size", "file_id", "file_url", "status", "error_message", "uploaded_at", "processed_at", "knowledge_base"],
+      "populate": ["knowledge_base"]
+    },
+    "conditions": []
+  }
+]
