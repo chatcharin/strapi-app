@@ -490,6 +490,11 @@ export interface ApiDocumentDocument extends Struct.CollectionTypeSchema {
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    doc_status: Schema.Attribute.Enumeration<
+      ['pending', 'processing', 'completed', 'error']
+    > &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<'pending'>;
     docId: Schema.Attribute.String &
       Schema.Attribute.Required &
       Schema.Attribute.Unique;
@@ -511,11 +516,6 @@ export interface ApiDocumentDocument extends Struct.CollectionTypeSchema {
       Schema.Attribute.Private;
     processed_at: Schema.Attribute.DateTime;
     publishedAt: Schema.Attribute.DateTime;
-    status: Schema.Attribute.Enumeration<
-      ['pending', 'processing', 'completed', 'error']
-    > &
-      Schema.Attribute.Required &
-      Schema.Attribute.DefaultTo<'pending'>;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;

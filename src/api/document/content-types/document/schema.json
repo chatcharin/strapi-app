@@ -36,7 +36,7 @@
             "type": "string",
             "required": true
         },
-        "status": {
+        "doc_status": {
             "type": "enumeration",
             "enum": ["pending", "processing", "completed", "error"],
             "default": "pending",
