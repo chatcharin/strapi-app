@@ -65,6 +65,46 @@
       "target": "plugin::users-permissions.role",
       "inversedBy": "users",
       "configurable": false
+      },
+    "full_name": {
+      "type": "string"
+    },
+    "account_type": {
+      "type": "enumeration",
+      "enum": ["admin", "researcher", "trainer", "user"]
+    },
+    "department": {
+      "type": "string"
+    },
+    "province": {
+      "type": "string"
+    },
+    "verification_status": {
+      "type": "enumeration",
+      "enum": ["pending", "approved", "rejected"],
+      "default": "pending"
+    },
+    "verification_documents": {
+      "type": "json"
+    },
+    "approved_at": {
+      "type": "datetime"
+    },
+    "approved_by": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user"
+    },
+    "rejected_at": {
+      "type": "datetime"
+    },
+    "rejected_by": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user"
+    },
+    "rejection_reason": {
+      "type": "text"
     }
   }
 }

@@ -14,7 +14,7 @@
       "name": "Apache 2.0",
       "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
     },
-    "x-generation-date": "2026-01-22T03:18:41.482Z"
+    "x-generation-date": "2026-01-22T06:01:19.124Z"
   },
   "x-strapi-config": {
     "plugins": [
@@ -6151,6 +6151,66 @@
                   }
                 }
               },
+              "full_name": {
+                "type": "string"
+              },
+              "account_type": {
+                "type": "string",
+                "enum": [
+                  "admin",
+                  "researcher",
+                  "trainer",
+                  "user"
+                ]
+              },
+              "department": {
+                "type": "string"
+              },
+              "province": {
+                "type": "string"
+              },
+              "verification_status": {
+                "type": "string",
+                "enum": [
+                  "pending",
+                  "approved",
+                  "rejected"
+                ]
+              },
+              "verification_documents": {},
+              "approved_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "approved_by": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "number"
+                  },
+                  "documentId": {
+                    "type": "string"
+                  }
+                }
+              },
+              "rejected_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "rejected_by": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "number"
+                  },
+                  "documentId": {
+                    "type": "string"
+                  }
+                }
+              },
+              "rejection_reason": {
+                "type": "string"
+              },
               "createdAt": {
                 "type": "string",
                 "format": "date-time"
@@ -6701,7 +6761,7 @@
                               "file_url": {
                                 "type": "string"
                               },
-                              "doc_status": {
+                              "status": {
                                 "type": "string",
                                 "enum": [
                                   "pending",
@@ -7280,7 +7340,7 @@
               "file_size",
               "file_id",
               "file_url",
-              "doc_status",
+              "status",
               "uploaded_at"
             ],
             "type": "object",
@@ -7303,7 +7363,7 @@
               "file_url": {
                 "type": "string"
               },
-              "doc_status": {
+              "status": {
                 "type": "string",
                 "enum": [
                   "pending",
@@ -7410,7 +7470,7 @@
           "file_size",
           "file_id",
           "file_url",
-          "doc_status",
+          "status",
           "uploaded_at"
         ],
         "properties": {
@@ -7438,7 +7498,7 @@
           "file_url": {
             "type": "string"
           },
-          "doc_status": {
+          "status": {
             "type": "string",
             "enum": [
               "pending",
@@ -7511,7 +7571,7 @@
                     "file_url": {
                       "type": "string"
                     },
-                    "doc_status": {
+                    "status": {
                       "type": "string",
                       "enum": [
                         "pending",
@@ -8348,6 +8408,66 @@
                                     }
                                   }
                                 }
+                              },
+                              "full_name": {
+                                "type": "string"
+                              },
+                              "account_type": {
+                                "type": "string",
+                                "enum": [
+                                  "admin",
+                                  "researcher",
+                                  "trainer",
+                                  "user"
+                                ]
+                              },
+                              "department": {
+                                "type": "string"
+                              },
+                              "province": {
+                                "type": "string"
+                              },
+                              "verification_status": {
+                                "type": "string",
+                                "enum": [
+                                  "pending",
+                                  "approved",
+                                  "rejected"
+                                ]
+                              },
+                              "verification_documents": {},
+                              "approved_at": {
+                                "type": "string",
+                                "format": "date-time"
+                              },
+                              "approved_by": {
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "number"
+                                  },
+                                  "documentId": {
+                                    "type": "string"
+                                  }
+                                }
+                              },
+                              "rejected_at": {
+                                "type": "string",
+                                "format": "date-time"
+                              },
+                              "rejected_by": {
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "number"
+                                  },
+                                  "documentId": {
+                                    "type": "string"
+                                  }
+                                }
+                              },
+                              "rejection_reason": {
+                                "type": "string"
                               },
                               "createdAt": {
                                 "type": "string",
@@ -9566,6 +9686,66 @@
                     }
                   }
                 },
+                "full_name": {
+                  "type": "string"
+                },
+                "account_type": {
+                  "type": "string",
+                  "enum": [
+                    "admin",
+                    "researcher",
+                    "trainer",
+                    "user"
+                  ]
+                },
+                "department": {
+                  "type": "string"
+                },
+                "province": {
+                  "type": "string"
+                },
+                "verification_status": {
+                  "type": "string",
+                  "enum": [
+                    "pending",
+                    "approved",
+                    "rejected"
+                  ]
+                },
+                "verification_documents": {},
+                "approved_at": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "approved_by": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "number"
+                    },
+                    "documentId": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "rejected_at": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "rejected_by": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "number"
+                    },
+                    "documentId": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "rejection_reason": {
+                  "type": "string"
+                },
                 "createdAt": {
                   "type": "string",
                   "format": "date-time"
@@ -10243,7 +10423,7 @@
                     "file_url": {
                       "type": "string"
                     },
-                    "doc_status": {
+                    "status": {
                       "type": "string",
                       "enum": [
                         "pending",
@@ -10832,7 +11012,7 @@
                 "file_url": {
                   "type": "string"
                 },
-                "doc_status": {
+                "status": {
                   "type": "string",
                   "enum": [
                     "pending",
@@ -11696,6 +11876,66 @@
                                     }
                                   }
                                 }
+                              },
+                              "full_name": {
+                                "type": "string"
+                              },
+                              "account_type": {
+                                "type": "string",
+                                "enum": [
+                                  "admin",
+                                  "researcher",
+                                  "trainer",
+                                  "user"
+                                ]
+                              },
+                              "department": {
+                                "type": "string"
+                              },
+                              "province": {
+                                "type": "string"
+                              },
+                              "verification_status": {
+                                "type": "string",
+                                "enum": [
+                                  "pending",
+                                  "approved",
+                                  "rejected"
+                                ]
+                              },
+                              "verification_documents": {},
+                              "approved_at": {
+                                "type": "string",
+                                "format": "date-time"
+                              },
+                              "approved_by": {
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "number"
+                                  },
+                                  "documentId": {
+                                    "type": "string"
+                                  }
+                                }
+                              },
+                              "rejected_at": {
+                                "type": "string",
+                                "format": "date-time"
+                              },
+                              "rejected_by": {
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "number"
+                                  },
+                                  "documentId": {
+                                    "type": "string"
+                                  }
+                                }
+                              },
+                              "rejection_reason": {
+                                "type": "string"
                               },
                               "createdAt": {
                                 "type": "string",
@@ -12974,6 +13214,66 @@
                       }
                     }
                   },
+                  "full_name": {
+                    "type": "string"
+                  },
+                  "account_type": {
+                    "type": "string",
+                    "enum": [
+                      "admin",
+                      "researcher",
+                      "trainer",
+                      "user"
+                    ]
+                  },
+                  "department": {
+                    "type": "string"
+                  },
+                  "province": {
+                    "type": "string"
+                  },
+                  "verification_status": {
+                    "type": "string",
+                    "enum": [
+                      "pending",
+                      "approved",
+                      "rejected"
+                    ]
+                  },
+                  "verification_documents": {},
+                  "approved_at": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "approved_by": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "number"
+                      },
+                      "documentId": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "rejected_at": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "rejected_by": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "number"
+                      },
+                      "documentId": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "rejection_reason": {
+                    "type": "string"
+                  },
                   "createdAt": {
                     "type": "string",
                     "format": "date-time"
@@ -13487,7 +13787,7 @@
                               "file_url": {
                                 "type": "string"
                               },
-                              "doc_status": {
+                              "status": {
                                 "type": "string",
                                 "enum": [
                                   "pending",
@@ -15495,6 +15795,66 @@
                     }
                   }
                 },
+                "full_name": {
+                  "type": "string"
+                },
+                "account_type": {
+                  "type": "string",
+                  "enum": [
+                    "admin",
+                    "researcher",
+                    "trainer",
+                    "user"
+                  ]
+                },
+                "department": {
+                  "type": "string"
+                },
+                "province": {
+                  "type": "string"
+                },
+                "verification_status": {
+                  "type": "string",
+                  "enum": [
+                    "pending",
+                    "approved",
+                    "rejected"
+                  ]
+                },
+                "verification_documents": {},
+                "approved_at": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "approved_by": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "number"
+                    },
+                    "documentId": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "rejected_at": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "rejected_by": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "number"
+                    },
+                    "documentId": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "rejection_reason": {
+                  "type": "string"
+                },
                 "createdAt": {
                   "type": "string",
                   "format": "date-time"
@@ -15839,7 +16199,7 @@
                                 "file_url": {
                                   "type": "string"
                                 },
-                                "doc_status": {
+                                "status": {
                                   "type": "string",
                                   "enum": [
                                     "pending",
@@ -17021,6 +17381,66 @@
                     }
                   }
                 }
+              },
+              "full_name": {
+                "type": "string"
+              },
+              "account_type": {
+                "type": "string",
+                "enum": [
+                  "admin",
+                  "researcher",
+                  "trainer",
+                  "user"
+                ]
+              },
+              "department": {
+                "type": "string"
+              },
+              "province": {
+                "type": "string"
+              },
+              "verification_status": {
+                "type": "string",
+                "enum": [
+                  "pending",
+                  "approved",
+                  "rejected"
+                ]
+              },
+              "verification_documents": {},
+              "approved_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "approved_by": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "number"
+                  },
+                  "documentId": {
+                    "type": "string"
+                  }
+                }
+              },
+              "rejected_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "rejected_by": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "number"
+                  },
+                  "documentId": {
+                    "type": "string"
+                  }
+                }
+              },
+              "rejection_reason": {
+                "type": "string"
               },
               "createdAt": {
                 "type": "string",
