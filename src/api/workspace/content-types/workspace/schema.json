@@ -55,6 +55,12 @@
       "relation": "oneToMany",
       "target": "api::group.group",
       "mappedBy": "workspace"
+    },
+    "workspace_roles": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::workspace-role.workspace-role",
+      "mappedBy": "workspace"
     }
   }
 }

@@ -1,0 +1,36 @@
+{
+  "kind": "collectionType",
+  "collectionName": "user_files",
+  "info": {
+    "singularName": "user-file",
+    "pluralName": "user-files",
+    "displayName": "User File",
+    "description": "Files owned by users"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "file": {
+      "type": "media",
+      "multiple": false,
+      "required": true,
+      "allowedTypes": ["images", "files", "videos", "audios"]
+    },
+    "file_name": {
+      "type": "string"
+    },
+    "file_size": {
+      "type": "decimal"
+    },
+    "format": {
+      "type": "string"
+    },
+    "owner": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user",
+      "inversedBy": "user_files"
+    }
+  }
+}

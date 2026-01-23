@@ -1,0 +1,68 @@
+{
+  "kind": "collectionType",
+  "collectionName": "workspace_roles",
+  "info": {
+    "singularName": "workspace-role",
+    "pluralName": "workspace-roles",
+    "displayName": "Workspace Role",
+    "description": "Workspace role and permissions"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "role": {
+      "type": "string",
+      "required": true
+    },
+    "is_administrator": {
+      "type": "boolean",
+      "default": false
+    },
+    "content_view_ai_chat": {
+      "type": "boolean",
+      "default": false
+    },
+    "content_view_file": {
+      "type": "boolean",
+      "default": false
+    },
+    "content_view_knowledge_base": {
+      "type": "boolean",
+      "default": false
+    },
+    "content_view_organize": {
+      "type": "boolean",
+      "default": false
+    },
+    "ai_chat_read": {
+      "type": "boolean",
+      "default": false
+    },
+    "ai_chat_use": {
+      "type": "boolean",
+      "default": false
+    },
+    "invitation_method": {
+      "type": "enumeration",
+      "enum": ["invite", "register", "invite_and_register"],
+      "default": "invite"
+    },
+    "document_request": {
+      "type": "enumeration",
+      "enum": ["yes", "no"],
+      "default": "no"
+    },
+    "users": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "plugin::users-permissions.user"
+    },
+    "workspace": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::workspace.workspace",
+      "inversedBy": "workspace_roles"
+    }
+  }
+}

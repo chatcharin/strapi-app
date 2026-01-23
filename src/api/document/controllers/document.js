@@ -7,6 +7,24 @@
 const { createCoreController } = require('@strapi/strapi').factories;
 
 module.exports = createCoreController('api::document.document', ({ strapi }) => ({
+  async resolveDocumentId(id) {
+    if (id === undefined || id === null) return id;
+
+    const raw = String(id);
+    const asInt = Number.parseInt(raw, 10);
+
+    if (!Number.isFinite(asInt) || String(asInt) !== raw) {
+      return raw;
+    }
+
+    const doc = await strapi.db.query('api::document.document').findOne({
+      select: ['documentId'],
+      where: { id: asInt },
+    });
+
+    return doc?.documentId;
+  },
+
   async find(ctx) {
     const { filters } = ctx.query;
 
@@ -33,5 +51,32 @@ module.exports = createCoreController('api::document.document', ({ strapi }) => 
 
     ctx.query.filters = filters;
     return await super.find(ctx);
-  }
+  },
+
+  async findOne(ctx) {
+    const resolved = await this.resolveDocumentId(ctx.params.id);
+    if (!resolved) {
+      return ctx.notFound('Document not found');
+    }
+    ctx.params.id = resolved;
+    return await super.findOne(ctx);
+  },
+
+  async update(ctx) {
+    const resolved = await this.resolveDocumentId(ctx.params.id);
+    if (!resolved) {
+      return ctx.notFound('Document not found');
+    }
+    ctx.params.id = resolved;
+    return await super.update(ctx);
+  },
+
+  async delete(ctx) {
+    const resolved = await this.resolveDocumentId(ctx.params.id);
+    if (!resolved) {
+      return ctx.notFound('Document not found');
+    }
+    ctx.params.id = resolved;
+    return await super.delete(ctx);
+  },
 }));

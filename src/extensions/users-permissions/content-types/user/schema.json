@@ -65,7 +65,12 @@
       "target": "plugin::users-permissions.role",
       "inversedBy": "users",
       "configurable": false
-      },
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": ["active", "deactive"],
+      "default": "active"
+    },
     "full_name": {
       "type": "string"
     },
@@ -105,6 +110,12 @@
     },
     "rejection_reason": {
       "type": "text"
+    },
+    "user_files": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::user-file.user-file",
+      "mappedBy": "owner"
     }
   }
 }

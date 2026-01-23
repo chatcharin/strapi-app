@@ -682,6 +682,99 @@ export interface ApiModelIconModelIcon extends Struct.CollectionTypeSchema {
   };
 }
 
+export interface ApiUserFileUserFile extends Struct.CollectionTypeSchema {
+  collectionName: 'user_files';
+  info: {
+    description: 'Files owned by users';
+    displayName: 'User File';
+    pluralName: 'user-files';
+    singularName: 'user-file';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    file: Schema.Attribute.Media<'images' | 'files' | 'videos' | 'audios'> &
+      Schema.Attribute.Required;
+    file_name: Schema.Attribute.String;
+    file_size: Schema.Attribute.Decimal;
+    format: Schema.Attribute.String;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::user-file.user-file'
+    > &
+      Schema.Attribute.Private;
+    owner: Schema.Attribute.Relation<
+      'manyToOne',
+      'plugin::users-permissions.user'
+    >;
+    publishedAt: Schema.Attribute.DateTime;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
+export interface ApiWorkspaceRoleWorkspaceRole
+  extends Struct.CollectionTypeSchema {
+  collectionName: 'workspace_roles';
+  info: {
+    description: 'Workspace role and permissions';
+    displayName: 'Workspace Role';
+    pluralName: 'workspace-roles';
+    singularName: 'workspace-role';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    ai_chat_read: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
+    ai_chat_use: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
+    content_view_ai_chat: Schema.Attribute.Boolean &
+      Schema.Attribute.DefaultTo<false>;
+    content_view_file: Schema.Attribute.Boolean &
+      Schema.Attribute.DefaultTo<false>;
+    content_view_knowledge_base: Schema.Attribute.Boolean &
+      Schema.Attribute.DefaultTo<false>;
+    content_view_organize: Schema.Attribute.Boolean &
+      Schema.Attribute.DefaultTo<false>;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    document_request: Schema.Attribute.Enumeration<['yes', 'no']> &
+      Schema.Attribute.DefaultTo<'no'>;
+    invitation_method: Schema.Attribute.Enumeration<
+      ['invite', 'register', 'invite_and_register']
+    > &
+      Schema.Attribute.DefaultTo<'invite'>;
+    is_administrator: Schema.Attribute.Boolean &
+      Schema.Attribute.DefaultTo<false>;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::workspace-role.workspace-role'
+    > &
+      Schema.Attribute.Private;
+    publishedAt: Schema.Attribute.DateTime;
+    role: Schema.Attribute.String & Schema.Attribute.Required;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    users: Schema.Attribute.Relation<
+      'manyToMany',
+      'plugin::users-permissions.user'
+    >;
+    workspace: Schema.Attribute.Relation<
+      'manyToOne',
+      'api::workspace.workspace'
+    >;
+  };
+}
+
 export interface ApiWorkspaceSettingWorkspaceSetting
   extends Struct.CollectionTypeSchema {
   collectionName: 'workspace_settings';
@@ -766,6 +859,10 @@ export interface ApiWorkspaceWorkspace extends Struct.CollectionTypeSchema {
       'plugin::users-permissions.user'
     >;
     workspace_name: Schema.Attribute.String & Schema.Attribute.Required;
+    workspace_roles: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::workspace-role.workspace-role'
+    >;
   };
 }
 
@@ -1272,9 +1369,15 @@ export interface PluginUsersPermissionsUser
       'manyToOne',
       'plugin::users-permissions.role'
     >;
+    status: Schema.Attribute.Enumeration<['active', 'deactive']> &
+      Schema.Attribute.DefaultTo<'active'>;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    user_files: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::user-file.user-file'
+    >;
     username: Schema.Attribute.String &
       Schema.Attribute.Required &
       Schema.Attribute.Unique &
@@ -1306,6 +1409,8 @@ declare module '@strapi/strapi' {
       'api::knowledge-base.knowledge-base': ApiKnowledgeBaseKnowledgeBase;
       'api::message.message': ApiMessageMessage;
       'api::model-icon.model-icon': ApiModelIconModelIcon;
+      'api::user-file.user-file': ApiUserFileUserFile;
+      'api::workspace-role.workspace-role': ApiWorkspaceRoleWorkspaceRole;
       'api::workspace-setting.workspace-setting': ApiWorkspaceSettingWorkspaceSetting;
       'api::workspace.workspace': ApiWorkspaceWorkspace;
       'plugin::content-releases.release': PluginContentReleasesRelease;
