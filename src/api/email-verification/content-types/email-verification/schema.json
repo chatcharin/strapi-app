@@ -1,0 +1,39 @@
+{
+  "kind": "collectionType",
+  "collectionName": "email_verifications",
+  "info": {
+    "singularName": "email-verification",
+    "pluralName": "email-verifications",
+    "displayName": "Email Verification",
+    "description": "OTP tokens for email verification"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "email": {
+      "type": "email",
+      "required": true,
+      "unique": false
+    },
+    "otp": {
+      "type": "string",
+      "required": true,
+      "private": true
+    },
+    "expiresAt": {
+      "type": "datetime",
+      "required": true
+    },
+    "consumed": {
+      "type": "boolean",
+      "default": false,
+      "required": true
+    },
+    "user": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user"
+    }
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "kind": "collectionType",
+  "collectionName": "invitations",
+  "info": {
+    "singularName": "invitation",
+    "pluralName": "invitations",
+    "displayName": "Invitation",
+    "description": "Workspace invitation tokens"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "email": {
+      "type": "email",
+      "required": true
+    },
+    "token": {
+      "type": "string",
+      "required": true,
+      "private": true
+    },
+    "expiresAt": {
+      "type": "datetime",
+      "required": true
+    },
+    "consumed": {
+      "type": "boolean",
+      "default": false,
+      "required": true
+    },
+    "workspace": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::workspace.workspace"
+    },
+    "workspace_role": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::workspace-role.workspace-role"
+    },
+    "invited_by": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user"
+    }
+  }
+}

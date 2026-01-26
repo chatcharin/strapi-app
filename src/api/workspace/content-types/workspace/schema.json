@@ -15,6 +15,25 @@
       "type": "string",
       "required": true
     },
+    "owner_full_name": {
+      "type": "string"
+    },
+    "owner_email": {
+      "type": "email"
+    },
+    "owner_phone": {
+      "type": "string"
+    },
+    "owner_organization": {
+      "type": "string"
+    },
+    "contact_email": {
+      "type": "email"
+    },
+    "email": {
+      "type": "email",
+      "required": false
+    },
     "logo": {
       "type": "media",
       "multiple": false,

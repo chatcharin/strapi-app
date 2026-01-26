@@ -527,6 +527,47 @@ export interface ApiDocumentDocument extends Struct.CollectionTypeSchema {
   };
 }
 
+export interface ApiEmailVerificationEmailVerification
+  extends Struct.CollectionTypeSchema {
+  collectionName: 'email_verifications';
+  info: {
+    description: 'OTP tokens for email verification';
+    displayName: 'Email Verification';
+    pluralName: 'email-verifications';
+    singularName: 'email-verification';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    consumed: Schema.Attribute.Boolean &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<false>;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    email: Schema.Attribute.Email & Schema.Attribute.Required;
+    expiresAt: Schema.Attribute.DateTime & Schema.Attribute.Required;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::email-verification.email-verification'
+    > &
+      Schema.Attribute.Private;
+    otp: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.Private;
+    publishedAt: Schema.Attribute.DateTime;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    user: Schema.Attribute.Relation<
+      'manyToOne',
+      'plugin::users-permissions.user'
+    >;
+  };
+}
+
 export interface ApiGroupGroup extends Struct.CollectionTypeSchema {
   collectionName: 'groups';
   info: {
@@ -559,6 +600,54 @@ export interface ApiGroupGroup extends Struct.CollectionTypeSchema {
     workspace: Schema.Attribute.Relation<
       'manyToOne',
       'api::workspace.workspace'
+    >;
+  };
+}
+
+export interface ApiInvitationInvitation extends Struct.CollectionTypeSchema {
+  collectionName: 'invitations';
+  info: {
+    description: 'Workspace invitation tokens';
+    displayName: 'Invitation';
+    pluralName: 'invitations';
+    singularName: 'invitation';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    consumed: Schema.Attribute.Boolean &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<false>;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    email: Schema.Attribute.Email & Schema.Attribute.Required;
+    expiresAt: Schema.Attribute.DateTime & Schema.Attribute.Required;
+    invited_by: Schema.Attribute.Relation<
+      'manyToOne',
+      'plugin::users-permissions.user'
+    >;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::invitation.invitation'
+    > &
+      Schema.Attribute.Private;
+    publishedAt: Schema.Attribute.DateTime;
+    token: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.Private;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    workspace: Schema.Attribute.Relation<
+      'manyToOne',
+      'api::workspace.workspace'
+    >;
+    workspace_role: Schema.Attribute.Relation<
+      'manyToOne',
+      'api::workspace-role.workspace-role'
     >;
   };
 }
@@ -833,10 +922,12 @@ export interface ApiWorkspaceWorkspace extends Struct.CollectionTypeSchema {
   };
   attributes: {
     chats: Schema.Attribute.Relation<'oneToMany', 'api::chat.chat'>;
+    contact_email: Schema.Attribute.Email;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
     documents: Schema.Attribute.Relation<'oneToMany', 'api::document.document'>;
+    email: Schema.Attribute.Email;
     groups: Schema.Attribute.Relation<'oneToMany', 'api::group.group'>;
     knowledge_bases: Schema.Attribute.Relation<
       'oneToMany',
@@ -850,6 +941,10 @@ export interface ApiWorkspaceWorkspace extends Struct.CollectionTypeSchema {
       Schema.Attribute.Private;
     logo: Schema.Attribute.Media<'images'>;
     messages: Schema.Attribute.Relation<'oneToMany', 'api::message.message'>;
+    owner_email: Schema.Attribute.Email;
+    owner_full_name: Schema.Attribute.String;
+    owner_organization: Schema.Attribute.String;
+    owner_phone: Schema.Attribute.String;
     publishedAt: Schema.Attribute.DateTime;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
@@ -1405,7 +1500,9 @@ declare module '@strapi/strapi' {
       'admin::user': AdminUser;
       'api::chat.chat': ApiChatChat;
       'api::document.document': ApiDocumentDocument;
+      'api::email-verification.email-verification': ApiEmailVerificationEmailVerification;
       'api::group.group': ApiGroupGroup;
+      'api::invitation.invitation': ApiInvitationInvitation;
       'api::knowledge-base.knowledge-base': ApiKnowledgeBaseKnowledgeBase;
       'api::message.message': ApiMessageMessage;
       'api::model-icon.model-icon': ApiModelIconModelIcon;
