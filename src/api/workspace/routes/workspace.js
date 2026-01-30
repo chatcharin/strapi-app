@@ -12,20 +12,46 @@ module.exports = createCoreRouter('api::workspace.workspace', {
   },
   routes: [
     {
-      method: 'PUT',
-      path: '/workspaces/:id/owner',
-      handler: 'workspace.updateOwner',
-      config: {
-        auth: true,
-        policies: [],
-      },
-    },
-    {
       method: 'GET',
       path: '/workspaces/by-document/:docId',
       handler: 'workspace.findByDocument',
       config: {
-        auth: true,
+        auth: {
+          strategies: ['users-permissions'],
+        },
+        policies: [],
+      },
+    },
+    {
+      method: 'POST',
+      path: '/workspaces/:id/contact',
+      handler: 'workspace.contact',
+      config: {
+        auth: {
+          strategies: ['users-permissions'],
+        },
+        policies: [],
+      },
+    },
+    {
+      method: 'POST',
+      path: '/workspaces/:id/select',
+      handler: 'workspace.setSelectedWorkspace',
+      config: {
+        auth: {
+          strategies: ['users-permissions'],
+        },
+        policies: [],
+      },
+    },
+    {
+      method: 'POST',
+      path: '/workspaces/:id/change-owner',
+      handler: 'workspace.changeOwner',
+      config: {
+        auth: {
+          strategies: ['users-permissions'],
+        },
         policies: [],
       },
     },

@@ -565,6 +565,10 @@ export interface ApiEmailVerificationEmailVerification
       'manyToOne',
       'plugin::users-permissions.user'
     >;
+    workspace: Schema.Attribute.Relation<
+      'manyToOne',
+      'api::workspace.workspace'
+    >;
   };
 }
 
@@ -768,6 +772,10 @@ export interface ApiModelIconModelIcon extends Struct.CollectionTypeSchema {
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    workspace: Schema.Attribute.Relation<
+      'manyToOne',
+      'api::workspace.workspace'
+    >;
   };
 }
 
@@ -805,6 +813,10 @@ export interface ApiUserFileUserFile extends Struct.CollectionTypeSchema {
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    workspace: Schema.Attribute.Relation<
+      'manyToOne',
+      'api::workspace.workspace'
+    >;
   };
 }
 
@@ -906,6 +918,10 @@ export interface ApiWorkspaceSettingWorkspaceSetting
       'manyToOne',
       'plugin::users-permissions.user'
     >;
+    workspace: Schema.Attribute.Relation<
+      'manyToOne',
+      'api::workspace.workspace'
+    >;
   };
 }
 
@@ -928,6 +944,10 @@ export interface ApiWorkspaceWorkspace extends Struct.CollectionTypeSchema {
       Schema.Attribute.Private;
     documents: Schema.Attribute.Relation<'oneToMany', 'api::document.document'>;
     email: Schema.Attribute.Email;
+    email_verifications: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::email-verification.email-verification'
+    >;
     groups: Schema.Attribute.Relation<'oneToMany', 'api::group.group'>;
     knowledge_bases: Schema.Attribute.Relation<
       'oneToMany',
@@ -941,6 +961,14 @@ export interface ApiWorkspaceWorkspace extends Struct.CollectionTypeSchema {
       Schema.Attribute.Private;
     logo: Schema.Attribute.Media<'images'>;
     messages: Schema.Attribute.Relation<'oneToMany', 'api::message.message'>;
+    model_icons: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::model-icon.model-icon'
+    >;
+    owner: Schema.Attribute.Relation<
+      'manyToOne',
+      'plugin::users-permissions.user'
+    >;
     owner_email: Schema.Attribute.Email;
     owner_full_name: Schema.Attribute.String;
     owner_organization: Schema.Attribute.String;
@@ -949,6 +977,10 @@ export interface ApiWorkspaceWorkspace extends Struct.CollectionTypeSchema {
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    user_files: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::user-file.user-file'
+    >;
     users: Schema.Attribute.Relation<
       'manyToMany',
       'plugin::users-permissions.user'
@@ -957,6 +989,10 @@ export interface ApiWorkspaceWorkspace extends Struct.CollectionTypeSchema {
     workspace_roles: Schema.Attribute.Relation<
       'oneToMany',
       'api::workspace-role.workspace-role'
+    >;
+    workspace_settings: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::workspace-setting.workspace-setting'
     >;
   };
 }
@@ -1426,6 +1462,8 @@ export interface PluginUsersPermissionsUser
       'manyToOne',
       'plugin::users-permissions.user'
     >;
+    avatar_url: Schema.Attribute.String;
+    bio: Schema.Attribute.Text;
     blocked: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
     confirmationToken: Schema.Attribute.String & Schema.Attribute.Private;
     confirmed: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;

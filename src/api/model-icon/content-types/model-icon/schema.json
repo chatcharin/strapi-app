@@ -19,6 +19,11 @@
     "icon": {
       "type": "text",
       "required": true
+    },
+    "workspace": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::workspace.workspace"
     }
   }
 }

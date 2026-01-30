@@ -6,7 +6,7 @@ module.exports = createCoreRouter('api::invitation.invitation', {
   routes: [
     {
       method: 'POST',
-      path: '/invitations/create',
+      path: '/invitations',
       handler: 'invitation.createInvitation',
       config: {
         auth: true,

@@ -59,6 +59,11 @@
     },
     "tokens_limit": {
       "type": "integer"
+    },
+    "workspace": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::workspace.workspace"
     }
   }
 }

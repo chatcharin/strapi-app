@@ -74,6 +74,12 @@
     "full_name": {
       "type": "string"
     },
+    "bio": {
+      "type": "text"
+    },
+    "avatar_url": {
+      "type": "string"
+    },
     "account_type": {
       "type": "enumeration",
       "enum": ["admin", "researcher", "trainer", "user"]
