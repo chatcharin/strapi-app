@@ -430,6 +430,53 @@ export interface AdminUser extends Struct.CollectionTypeSchema {
   };
 }
 
+export interface ApiAgentAgent extends Struct.CollectionTypeSchema {
+  collectionName: 'agents';
+  info: {
+    description: '';
+    displayName: 'Agent';
+    pluralName: 'agents';
+    singularName: 'agent';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    dataMasking: Schema.Attribute.JSON;
+    description: Schema.Attribute.Text;
+    evaluation: Schema.Attribute.JSON;
+    filters: Schema.Attribute.JSON;
+    generation: Schema.Attribute.JSON;
+    goals: Schema.Attribute.JSON;
+    knowledgeBase: Schema.Attribute.JSON;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<'oneToMany', 'api::agent.agent'> &
+      Schema.Attribute.Private;
+    modelName: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<'llama2'>;
+    modelProvider: Schema.Attribute.Enumeration<
+      ['ollama', 'openai', 'anthropic', 'gemini']
+    > &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<'ollama'>;
+    name: Schema.Attribute.String & Schema.Attribute.Required;
+    permissions: Schema.Attribute.JSON;
+    prompt: Schema.Attribute.JSON;
+    publishedAt: Schema.Attribute.DateTime;
+    queryExpansion: Schema.Attribute.JSON;
+    rerank: Schema.Attribute.JSON;
+    retrieval: Schema.Attribute.JSON;
+    translation: Schema.Attribute.JSON;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
 export interface ApiChatChat extends Struct.CollectionTypeSchema {
   collectionName: 'chats';
   info: {
@@ -1536,6 +1583,7 @@ declare module '@strapi/strapi' {
       'admin::transfer-token': AdminTransferToken;
       'admin::transfer-token-permission': AdminTransferTokenPermission;
       'admin::user': AdminUser;
+      'api::agent.agent': ApiAgentAgent;
       'api::chat.chat': ApiChatChat;
       'api::document.document': ApiDocumentDocument;
       'api::email-verification.email-verification': ApiEmailVerificationEmailVerification;

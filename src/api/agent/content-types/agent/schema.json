@@ -1,0 +1,69 @@
+{
+  "kind": "collectionType",
+  "collectionName": "agents",
+  "info": {
+    "singularName": "agent",
+    "pluralName": "agents",
+    "displayName": "Agent",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "description": {
+      "type": "text"
+    },
+    "modelProvider": {
+      "type": "enumeration",
+      "enum": ["ollama", "openai", "anthropic", "gemini"],
+      "required": true,
+      "default": "ollama"
+    },
+    "modelName": {
+      "type": "string",
+      "required": true,
+      "default": "llama2"
+    },
+    "permissions": {
+      "type": "json"
+    },
+    "knowledgeBase": {
+      "type": "json"
+    },
+    "prompt": {
+      "type": "json"
+    },
+    "goals": {
+      "type": "json"
+    },
+    "dataMasking": {
+      "type": "json"
+    },
+    "queryExpansion": {
+      "type": "json"
+    },
+    "retrieval": {
+      "type": "json"
+    },
+    "rerank": {
+      "type": "json"
+    },
+    "filters": {
+      "type": "json"
+    },
+    "generation": {
+      "type": "json"
+    },
+    "translation": {
+      "type": "json"
+    },
+    "evaluation": {
+      "type": "json"
+    }
+  }
+}

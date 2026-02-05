@@ -24,9 +24,13 @@ const resolveIdToInteger = async (strapi, api, identifier) => {
 };
 
 module.exports = async (policyContext, config, { strapi }) => {
-  const { ctx } = policyContext;
+  const ctx = policyContext?.ctx;
+  if (!ctx) {
+    // If Strapi did not pass a ctx, fail fast instead of throwing
+    return false;
+  }
 
-  const userId = ctx.state.user?.id;
+  const userId = ctx.state?.user?.id;
   if (!userId) {
     return ctx.unauthorized('You must be authenticated');
   }
@@ -35,19 +39,32 @@ module.exports = async (policyContext, config, { strapi }) => {
   const cookieName = process.env.SELECTED_WS_COOKIE || 'selectedWorkspaceId';
   const cookieWorkspaceId = ctx.cookies.get(cookieName);
 
-  const rawWorkspaceIdentifier = headerWorkspaceId || cookieWorkspaceId;
+  let rawWorkspaceIdentifier = headerWorkspaceId || cookieWorkspaceId;
 
+  // Fallback: pick the first workspace the user belongs to (helps read-only flows when header/cookie missing)
   if (!rawWorkspaceIdentifier) {
-    return ctx.badRequest('Workspace context is required');
+    const membership = await strapi.entityService.findMany('api::workspace-role.workspace-role', {
+      fields: ['id'],
+      populate: ['workspace'],
+      filters: { users: { id: { $eq: userId } } },
+      limit: 1,
+    });
+
+    const workspaceFromMembership = membership?.[0]?.workspace;
+    if (!workspaceFromMembership) {
+      return ctx.badRequest('Workspace context is required');
+    }
+
+    rawWorkspaceIdentifier = workspaceFromMembership.id || workspaceFromMembership;
   }
 
-  const workspaceIdInt = await resolveIdToInteger(strapi, 'api::workspace.workspace', rawWorkspaceIdentifier);
+  let workspaceIdInt = await resolveIdToInteger(strapi, 'api::workspace.workspace', rawWorkspaceIdentifier);
   if (!workspaceIdInt) {
     return ctx.badRequest('Workspace not found');
   }
 
   // Validate membership using existing model: workspace-role.users
-  const roles = await strapi.entityService.findMany('api::workspace-role.workspace-role', {
+  let roles = await strapi.entityService.findMany('api::workspace-role.workspace-role', {
     fields: ['id', 'role', 'is_administrator'],
     filters: {
       workspace: workspaceIdInt,
@@ -56,9 +73,33 @@ module.exports = async (policyContext, config, { strapi }) => {
     limit: 1,
   });
 
-  const workspaceRole = roles?.[0];
+  let workspaceRole = roles?.[0];
+
+  // If user provided workspace they are not in, fallback to first membership instead of 403
   if (!workspaceRole) {
-    return ctx.forbidden('You are not a member of this workspace');
+    const anyMembership = await strapi.entityService.findMany('api::workspace-role.workspace-role', {
+      fields: ['id', 'role', 'is_administrator'],
+      populate: ['workspace'],
+      filters: { users: { id: { $eq: userId } } },
+      limit: 1,
+    });
+
+    const fallbackWorkspace = anyMembership?.[0]?.workspace;
+    if (!fallbackWorkspace) {
+      return ctx.forbidden('You are not a member of this workspace');
+    }
+
+    // Switch to fallback workspace
+    const fallbackId = fallbackWorkspace.id || fallbackWorkspace;
+    roles = anyMembership;
+    workspaceRole = anyMembership[0];
+    rawWorkspaceIdentifier = fallbackId;
+    // reuse resolution logic to keep consistency
+    const resolved = await resolveIdToInteger(strapi, 'api::workspace.workspace', fallbackId);
+    if (!resolved) {
+      return ctx.badRequest('Workspace not found');
+    }
+    workspaceIdInt = resolved;
   }
 
   // Attach to ctx.state for controllers/services
