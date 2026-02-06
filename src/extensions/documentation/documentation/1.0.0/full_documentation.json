@@ -14,7 +14,7 @@
       "name": "Apache 2.0",
       "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
     },
-    "x-generation-date": "2026-02-05T03:43:45.481Z"
+    "x-generation-date": "2026-02-06T01:10:31.810Z"
   },
   "x-strapi-config": {
     "plugins": [
@@ -10436,6 +10436,12 @@
                               "is_administrator": {
                                 "type": "boolean"
                               },
+                              "is_default": {
+                                "type": "boolean"
+                              },
+                              "is_deletable": {
+                                "type": "boolean"
+                              },
                               "content_view_ai_chat": {
                                 "type": "boolean"
                               },
@@ -12962,6 +12968,12 @@
                               "is_administrator": {
                                 "type": "boolean"
                               },
+                              "is_default": {
+                                "type": "boolean"
+                              },
+                              "is_deletable": {
+                                "type": "boolean"
+                              },
                               "content_view_ai_chat": {
                                 "type": "boolean"
                               },
@@ -15440,6 +15452,12 @@
                               "is_administrator": {
                                 "type": "boolean"
                               },
+                              "is_default": {
+                                "type": "boolean"
+                              },
+                              "is_deletable": {
+                                "type": "boolean"
+                              },
                               "content_view_ai_chat": {
                                 "type": "boolean"
                               },
@@ -17882,6 +17900,12 @@
                                   "type": "string"
                                 },
                                 "is_administrator": {
+                                  "type": "boolean"
+                                },
+                                "is_default": {
+                                  "type": "boolean"
+                                },
+                                "is_deletable": {
                                   "type": "boolean"
                                 },
                                 "content_view_ai_chat": {
@@ -20470,6 +20494,12 @@
                     "is_administrator": {
                       "type": "boolean"
                     },
+                    "is_default": {
+                      "type": "boolean"
+                    },
+                    "is_deletable": {
+                      "type": "boolean"
+                    },
                     "content_view_ai_chat": {
                       "type": "boolean"
                     },
@@ -22930,6 +22960,12 @@
                               "is_administrator": {
                                 "type": "boolean"
                               },
+                              "is_default": {
+                                "type": "boolean"
+                              },
+                              "is_deletable": {
+                                "type": "boolean"
+                              },
                               "content_view_ai_chat": {
                                 "type": "boolean"
                               },
@@ -25331,6 +25367,12 @@
                                     "type": "string"
                                   },
                                   "is_administrator": {
+                                    "type": "boolean"
+                                  },
+                                  "is_default": {
+                                    "type": "boolean"
+                                  },
+                                  "is_deletable": {
                                     "type": "boolean"
                                   },
                                   "content_view_ai_chat": {
@@ -27965,6 +28007,12 @@
                     "is_administrator": {
                       "type": "boolean"
                     },
+                    "is_default": {
+                      "type": "boolean"
+                    },
+                    "is_deletable": {
+                      "type": "boolean"
+                    },
                     "content_view_ai_chat": {
                       "type": "boolean"
                     },
@@ -30438,6 +30486,12 @@
                                 "type": "string"
                               },
                               "is_administrator": {
+                                "type": "boolean"
+                              },
+                              "is_default": {
+                                "type": "boolean"
+                              },
+                              "is_deletable": {
                                 "type": "boolean"
                               },
                               "content_view_ai_chat": {
@@ -33054,6 +33108,12 @@
                               "is_administrator": {
                                 "type": "boolean"
                               },
+                              "is_default": {
+                                "type": "boolean"
+                              },
+                              "is_deletable": {
+                                "type": "boolean"
+                              },
                               "content_view_ai_chat": {
                                 "type": "boolean"
                               },
@@ -34035,6 +34095,12 @@
               "is_administrator": {
                 "type": "boolean"
               },
+              "is_default": {
+                "type": "boolean"
+              },
+              "is_deletable": {
+                "type": "boolean"
+              },
               "content_view_ai_chat": {
                 "type": "boolean"
               },
@@ -34165,6 +34231,12 @@
             "type": "string"
           },
           "is_administrator": {
+            "type": "boolean"
+          },
+          "is_default": {
+            "type": "boolean"
+          },
+          "is_deletable": {
             "type": "boolean"
           },
           "content_view_ai_chat": {
@@ -35861,6 +35933,12 @@
                                   "type": "string"
                                 },
                                 "is_administrator": {
+                                  "type": "boolean"
+                                },
+                                "is_default": {
+                                  "type": "boolean"
+                                },
+                                "is_deletable": {
                                   "type": "boolean"
                                 },
                                 "content_view_ai_chat": {
@@ -38340,6 +38418,12 @@
                                 "type": "string"
                               },
                               "is_administrator": {
+                                "type": "boolean"
+                              },
+                              "is_default": {
+                                "type": "boolean"
+                              },
+                              "is_deletable": {
                                 "type": "boolean"
                               },
                               "content_view_ai_chat": {

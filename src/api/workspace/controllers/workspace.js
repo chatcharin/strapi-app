@@ -116,8 +116,20 @@ module.exports = createCoreController('api::workspace.workspace', ({ strapi }) =
     if (!workspace) return ctx.badRequest('Workspace not found');
 
     const currentOwnerId = workspace.owner?.id;
-    if (!currentOwnerId || currentOwnerId !== userId) {
-      return ctx.forbidden('Only current owner can change owner');
+    
+    // Check if user is current owner or has admin role
+    const userRoles = await strapi.entityService.findMany('api::workspace-role.workspace-role', {
+      fields: ['id', 'role', 'is_administrator'],
+      filters: {
+        workspace: workspaceIdInt,
+        users: { id: { $eq: userId } },
+      },
+    });
+    
+    const isAdmin = userRoles.some(r => r.is_administrator || r.role === 'admin' || r.role === 'owner');
+    
+    if (!currentOwnerId || (currentOwnerId !== userId && !isAdmin)) {
+      return ctx.forbidden('Only current owner or admin can change owner');
     }
 
     // Ensure new owner is a member in this workspace (via workspace-role.users)

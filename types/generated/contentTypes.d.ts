@@ -901,6 +901,8 @@ export interface ApiWorkspaceRoleWorkspaceRole
       Schema.Attribute.DefaultTo<'invite'>;
     is_administrator: Schema.Attribute.Boolean &
       Schema.Attribute.DefaultTo<false>;
+    is_default: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
+    is_deletable: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<true>;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
