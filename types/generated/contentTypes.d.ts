@@ -477,6 +477,48 @@ export interface ApiAgentAgent extends Struct.CollectionTypeSchema {
   };
 }
 
+export interface ApiChatWidgetSettingChatWidgetSetting
+  extends Struct.CollectionTypeSchema {
+  collectionName: 'chat_widget_settings';
+  info: {
+    description: 'Chat widget configuration settings per workspace';
+    displayName: 'Chat Widget Setting';
+    pluralName: 'chat-widget-settings';
+    singularName: 'chat-widget-setting';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    colorClass: Schema.Attribute.String &
+      Schema.Attribute.DefaultTo<'bg-indigo-600'>;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::chat-widget-setting.chat-widget-setting'
+    > &
+      Schema.Attribute.Private;
+    position: Schema.Attribute.Enumeration<['left', 'right']> &
+      Schema.Attribute.DefaultTo<'right'>;
+    primaryColor: Schema.Attribute.String &
+      Schema.Attribute.DefaultTo<'#4f46e5'>;
+    publishedAt: Schema.Attribute.DateTime;
+    theme: Schema.Attribute.Enumeration<['light', 'dark']> &
+      Schema.Attribute.DefaultTo<'dark'>;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    workspace: Schema.Attribute.Relation<
+      'manyToOne',
+      'api::workspace.workspace'
+    > &
+      Schema.Attribute.Required;
+  };
+}
+
 export interface ApiChatChat extends Struct.CollectionTypeSchema {
   collectionName: 'chats';
   info: {
@@ -986,6 +1028,10 @@ export interface ApiWorkspaceWorkspace extends Struct.CollectionTypeSchema {
     draftAndPublish: false;
   };
   attributes: {
+    chat_widget_settings: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::chat-widget-setting.chat-widget-setting'
+    >;
     chats: Schema.Attribute.Relation<'oneToMany', 'api::chat.chat'>;
     contact_email: Schema.Attribute.Email;
     createdAt: Schema.Attribute.DateTime;
@@ -1586,6 +1632,7 @@ declare module '@strapi/strapi' {
       'admin::transfer-token-permission': AdminTransferTokenPermission;
       'admin::user': AdminUser;
       'api::agent.agent': ApiAgentAgent;
+      'api::chat-widget-setting.chat-widget-setting': ApiChatWidgetSettingChatWidgetSetting;
       'api::chat.chat': ApiChatChat;
       'api::document.document': ApiDocumentDocument;
       'api::email-verification.email-verification': ApiEmailVerificationEmailVerification;

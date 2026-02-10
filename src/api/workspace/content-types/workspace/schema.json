@@ -109,6 +109,12 @@
       "relation": "oneToMany",
       "target": "api::workspace-setting.workspace-setting",
       "mappedBy": "workspace"
+    },
+    "chat_widget_settings": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::chat-widget-setting.chat-widget-setting",
+      "mappedBy": "workspace"
     }
   }
 }

@@ -1,0 +1,40 @@
+{
+  "kind": "collectionType",
+  "collectionName": "chat_widget_settings",
+  "info": {
+    "singularName": "chat-widget-setting",
+    "pluralName": "chat-widget-settings",
+    "displayName": "Chat Widget Setting",
+    "description": "Chat widget configuration settings per workspace"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "workspace": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::workspace.workspace",
+      "inversedBy": "chat_widget_settings",
+      "required": true
+    },
+    "theme": {
+      "type": "enumeration",
+      "enum": ["light", "dark"],
+      "default": "dark"
+    },
+    "position": {
+      "type": "enumeration",
+      "enum": ["left", "right"],
+      "default": "right"
+    },
+    "colorClass": {
+      "type": "string",
+      "default": "bg-indigo-600"
+    },
+    "primaryColor": {
+      "type": "string",
+      "default": "#4f46e5"
+    }
+  }
+}

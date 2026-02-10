@@ -8,6 +8,9 @@ module.exports = createCoreRouter('api::invitation.invitation', {
       method: 'POST',
       path: '/invitations',
       handler: 'invitation.createInvitation',
+      info: {
+        type: 'content-api',
+      },
       config: {
         auth: true,
         policies: [],
@@ -17,6 +20,9 @@ module.exports = createCoreRouter('api::invitation.invitation', {
       method: 'POST',
       path: '/invitations/accept',
       handler: 'invitation.acceptInvitation',
+      info: {
+        type: 'content-api',
+      },
       config: {
         auth: false,
         policies: [],

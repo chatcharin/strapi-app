@@ -58,8 +58,11 @@ module.exports = (plugin) => {
         method: 'PUT',
         path: '/users/me',
         handler: 'user.updateMe',
+        info: {
+          type: 'content-api',
+        },
         config: {
-          auth: { scope: ['authenticated'] },
+          auth: { type: 'authenticated', scope: ['authenticated'] },
           policies: [],
         },
       },
@@ -67,8 +70,11 @@ module.exports = (plugin) => {
         method: 'DELETE',
         path: '/users/me',
         handler: 'user.deleteMe',
+        info: {
+          type: 'content-api',
+        },
         config: {
-          auth: { scope: ['authenticated'] },
+          auth: { type: 'authenticated', scope: ['authenticated'] },
           policies: [],
         },
       }
