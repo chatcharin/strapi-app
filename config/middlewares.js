@@ -1,3 +1,11 @@
+const defaultOrigins = ['http://localhost:5173', 'http://localhost:3000', 'http://localhost:8080'];
+const origins = (process.env.CORS_ORIGINS || '')
+  .split(',')
+  .map((o) => o.trim())
+  .filter(Boolean);
+
+const allowedOrigins = origins.length > 0 ? origins : defaultOrigins;
+
 module.exports = [
   'strapi::logger',
   'strapi::errors',
@@ -7,7 +15,7 @@ module.exports = [
       contentSecurityPolicy: {
         useDefaults: true,
         directives: {
-          'frame-ancestors': ['self', 'http://localhost:5173', 'http://localhost:3000'],
+          'frame-ancestors': ['self', ...allowedOrigins],
         },
       },
     },
@@ -15,7 +23,7 @@ module.exports = [
   {
     name: 'strapi::cors',
     config: {
-      origin: ['http://localhost:5173', 'http://localhost:3000'],
+      origin: allowedOrigins,
       methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
       headers: ['Content-Type', 'Authorization', 'Origin', 'Accept', 'Access-Control-Allow-Origin', 'X-Workspace-Id'],
       credentials: true,

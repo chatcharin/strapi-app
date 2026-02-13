@@ -1,5 +1,7 @@
 'use strict';
 
+const { initSocket } = require('./socket');
+
 module.exports = {
   /**
    * An asynchronous register function that runs before
@@ -16,7 +18,7 @@ module.exports = {
    * This gives you an opportunity to set up your data model,
    * run jobs, or perform some special logic.
    */
-  bootstrap({ strapi }) {
+  async bootstrap({ strapi }) {
     const ensureRouteInfo = (route) => {
       if (!route || typeof route !== 'object') return;
       if (!route.info || typeof route.info !== 'object') {
@@ -49,5 +51,50 @@ module.exports = {
     Object.values(strapi.plugins || {}).forEach((plugin) => {
       normalizeRouteContainer(plugin);
     });
+
+    // Auto-grant public permissions for conversation & chat-message-social
+    const publicRole = await strapi.db
+      .query('plugin::users-permissions.role')
+      .findOne({ where: { type: 'public' } });
+
+    if (publicRole) {
+      const publicActions = [
+        { api: 'api::conversation.conversation', actions: ['find', 'findOne', 'create'] },
+        { api: 'api::conversation-message-social.conversation-message-social', actions: ['find', 'findOne', 'create'] },
+        { api: 'api::ex-chat.ex-chat', actions: ['find', 'findOne', 'create'] },
+        { api: 'api::ex-message.ex-message', actions: ['find', 'findOne', 'create'] },
+      ];
+
+      for (const { api, actions } of publicActions) {
+        for (const action of actions) {
+          const existing = await strapi.db
+            .query('plugin::users-permissions.permission')
+            .findOne({ where: { action: `${api}.${action}`, role: publicRole.id } });
+
+          if (!existing) {
+            await strapi.db
+              .query('plugin::users-permissions.permission')
+              .create({ data: { action: `${api}.${action}`, role: publicRole.id } });
+          }
+        }
+      }
+    }
+
+    // Initialize Socket.IO — wait for httpServer to be ready
+    const waitForServer = () => {
+      return new Promise((resolve) => {
+        const check = () => {
+          if (strapi.server && strapi.server.httpServer) {
+            resolve();
+          } else {
+            setTimeout(check, 100);
+          }
+        };
+        check();
+      });
+    };
+
+    await waitForServer();
+    initSocket(strapi);
   },
 };

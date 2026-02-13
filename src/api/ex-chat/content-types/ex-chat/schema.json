@@ -1,0 +1,53 @@
+{
+  "kind": "collectionType",
+  "collectionName": "ex_chats",
+  "info": {
+    "singularName": "ex-chat",
+    "pluralName": "ex-chats",
+    "displayName": "EX Chat",
+    "description": "Chat conversations"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "workspaceId": {
+      "type": "string",
+      "required": true
+    },
+    "channel": {
+      "type": "enumeration",
+      "enum": ["widget", "facebook", "line"],
+      "required": true
+    },
+    "visitorId": {
+      "type": "string",
+      "required": true
+    },
+    "visitorName": {
+      "type": "string"
+    },
+    "visitorAvatar": {
+      "type": "string"
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": ["open", "closed", "pending"],
+      "default": "open",
+      "required": true
+    },
+    "lastMessage": {
+      "type": "text"
+    },
+    "lastMessageAt": {
+      "type": "datetime"
+    },
+    "unreadCount": {
+      "type": "integer",
+      "default": 0
+    },
+    "metadata": {
+      "type": "json"
+    }
+  }
+}

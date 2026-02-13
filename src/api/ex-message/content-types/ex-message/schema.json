@@ -1,0 +1,54 @@
+{
+  "kind": "collectionType",
+  "collectionName": "ex_messages",
+  "info": {
+    "singularName": "ex-message",
+    "pluralName": "ex-messages",
+    "displayName": "EX Message",
+    "description": "Chat messages"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "chatId": {
+      "type": "string",
+      "required": true
+    },
+    "channel": {
+      "type": "enumeration",
+      "enum": ["widget", "facebook", "line"],
+      "required": true
+    },
+    "senderRole": {
+      "type": "enumeration",
+      "enum": ["visitor", "agent", "system"],
+      "required": true
+    },
+    "senderName": {
+      "type": "string"
+    },
+    "senderAvatar": {
+      "type": "string"
+    },
+    "content": {
+      "type": "text",
+      "required": true
+    },
+    "contentType": {
+      "type": "enumeration",
+      "enum": ["text", "image", "file"],
+      "default": "text",
+      "required": true
+    },
+    "fileUrl": {
+      "type": "string"
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": ["sending", "sent", "delivered", "read", "failed"],
+      "default": "sent",
+      "required": true
+    }
+  }
+}

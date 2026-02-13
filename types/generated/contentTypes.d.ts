@@ -661,6 +661,92 @@ export interface ApiEmailVerificationEmailVerification
   };
 }
 
+export interface ApiExChatExChat extends Struct.CollectionTypeSchema {
+  collectionName: 'ex_chats';
+  info: {
+    description: 'Chat conversations';
+    displayName: 'EX Chat';
+    pluralName: 'ex-chats';
+    singularName: 'ex-chat';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    channel: Schema.Attribute.Enumeration<['widget', 'facebook', 'line']> &
+      Schema.Attribute.Required;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    lastMessage: Schema.Attribute.Text;
+    lastMessageAt: Schema.Attribute.DateTime;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::ex-chat.ex-chat'
+    > &
+      Schema.Attribute.Private;
+    metadata: Schema.Attribute.JSON;
+    publishedAt: Schema.Attribute.DateTime;
+    status: Schema.Attribute.Enumeration<['open', 'closed', 'pending']> &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<'open'>;
+    unreadCount: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    visitorAvatar: Schema.Attribute.String;
+    visitorId: Schema.Attribute.String & Schema.Attribute.Required;
+    visitorName: Schema.Attribute.String;
+    workspaceId: Schema.Attribute.String & Schema.Attribute.Required;
+  };
+}
+
+export interface ApiExMessageExMessage extends Struct.CollectionTypeSchema {
+  collectionName: 'ex_messages';
+  info: {
+    description: 'Chat messages';
+    displayName: 'EX Message';
+    pluralName: 'ex-messages';
+    singularName: 'ex-message';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    channel: Schema.Attribute.Enumeration<['widget', 'facebook', 'line']> &
+      Schema.Attribute.Required;
+    chatId: Schema.Attribute.String & Schema.Attribute.Required;
+    content: Schema.Attribute.Text & Schema.Attribute.Required;
+    contentType: Schema.Attribute.Enumeration<['text', 'image', 'file']> &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<'text'>;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    fileUrl: Schema.Attribute.String;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::ex-message.ex-message'
+    > &
+      Schema.Attribute.Private;
+    publishedAt: Schema.Attribute.DateTime;
+    senderAvatar: Schema.Attribute.String;
+    senderName: Schema.Attribute.String;
+    senderRole: Schema.Attribute.Enumeration<['visitor', 'agent', 'system']> &
+      Schema.Attribute.Required;
+    status: Schema.Attribute.Enumeration<
+      ['sending', 'sent', 'delivered', 'read', 'failed']
+    > &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<'sent'>;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
 export interface ApiGroupGroup extends Struct.CollectionTypeSchema {
   collectionName: 'groups';
   info: {
@@ -1636,6 +1722,8 @@ declare module '@strapi/strapi' {
       'api::chat.chat': ApiChatChat;
       'api::document.document': ApiDocumentDocument;
       'api::email-verification.email-verification': ApiEmailVerificationEmailVerification;
+      'api::ex-chat.ex-chat': ApiExChatExChat;
+      'api::ex-message.ex-message': ApiExMessageExMessage;
       'api::group.group': ApiGroupGroup;
       'api::invitation.invitation': ApiInvitationInvitation;
       'api::knowledge-base.knowledge-base': ApiKnowledgeBaseKnowledgeBase;
