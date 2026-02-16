@@ -1,0 +1,48 @@
+{
+  "kind": "collectionType",
+  "collectionName": "line_settings",
+  "info": {
+    "singularName": "line-setting",
+    "pluralName": "line-settings",
+    "displayName": "LINE Setting",
+    "description": "LINE Messaging API channel credentials per workspace"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "workspaceId": {
+      "type": "string",
+      "required": true
+    },
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "description": {
+      "type": "text"
+    },
+    "webhookUrl": {
+      "type": "string"
+    },
+    "channelId": {
+      "type": "string",
+      "required": true
+    },
+    "channelSecret": {
+      "type": "string",
+      "required": true
+    },
+    "channelAccessToken": {
+      "type": "text",
+      "required": true
+    },
+    "isActive": {
+      "type": "boolean",
+      "default": true
+    },
+    "metadata": {
+      "type": "json"
+    }
+  }
+}

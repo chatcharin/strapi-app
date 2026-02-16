@@ -876,6 +876,43 @@ export interface ApiKnowledgeBaseKnowledgeBase
   };
 }
 
+export interface ApiLineSettingLineSetting extends Struct.CollectionTypeSchema {
+  collectionName: 'line_settings';
+  info: {
+    description: 'LINE Messaging API channel credentials per workspace';
+    displayName: 'LINE Setting';
+    pluralName: 'line-settings';
+    singularName: 'line-setting';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    channelAccessToken: Schema.Attribute.Text & Schema.Attribute.Required;
+    channelId: Schema.Attribute.String & Schema.Attribute.Required;
+    channelSecret: Schema.Attribute.String & Schema.Attribute.Required;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    description: Schema.Attribute.Text;
+    isActive: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<true>;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::line-setting.line-setting'
+    > &
+      Schema.Attribute.Private;
+    metadata: Schema.Attribute.JSON;
+    name: Schema.Attribute.String & Schema.Attribute.Required;
+    publishedAt: Schema.Attribute.DateTime;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    webhookUrl: Schema.Attribute.String;
+    workspaceId: Schema.Attribute.String & Schema.Attribute.Required;
+  };
+}
+
 export interface ApiMessageMessage extends Struct.CollectionTypeSchema {
   collectionName: 'messages';
   info: {
@@ -1727,6 +1764,7 @@ declare module '@strapi/strapi' {
       'api::group.group': ApiGroupGroup;
       'api::invitation.invitation': ApiInvitationInvitation;
       'api::knowledge-base.knowledge-base': ApiKnowledgeBaseKnowledgeBase;
+      'api::line-setting.line-setting': ApiLineSettingLineSetting;
       'api::message.message': ApiMessageMessage;
       'api::model-icon.model-icon': ApiModelIconModelIcon;
       'api::user-file.user-file': ApiUserFileUserFile;

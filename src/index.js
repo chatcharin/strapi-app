@@ -59,10 +59,10 @@ module.exports = {
 
     if (publicRole) {
       const publicActions = [
-        { api: 'api::conversation.conversation', actions: ['find', 'findOne', 'create'] },
-        { api: 'api::conversation-message-social.conversation-message-social', actions: ['find', 'findOne', 'create'] },
         { api: 'api::ex-chat.ex-chat', actions: ['find', 'findOne', 'create'] },
         { api: 'api::ex-message.ex-message', actions: ['find', 'findOne', 'create'] },
+        { api: 'api::line-setting.line-setting', actions: ['find', 'findOne', 'create', 'update', 'delete'] },
+        { api: 'api::line.line', actions: ['webhook', 'reply'] },
       ];
 
       for (const { api, actions } of publicActions) {

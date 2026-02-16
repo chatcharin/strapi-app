@@ -1,6 +1,7 @@
 'use strict';
 
 const { Server } = require('socket.io');
+const line = require('@line/bot-sdk');
 
 let io = null;
 
@@ -161,6 +162,39 @@ function initSocket(strapi) {
           // Broadcast conversation update to workspace room
           if (chat.workspaceId) {
             io.to(`ws:${chat.workspaceId}`).emit('conversation:updated', updatedChat);
+          }
+
+          // Auto-send LINE reply when agent sends message to a LINE chat
+          if (senderRole === 'agent' && chat.channel === 'line') {
+            try {
+              const lineSettingId = chat.metadata && chat.metadata.lineSettingId;
+              let setting = null;
+
+              if (lineSettingId) {
+                setting = await strapi.db.query('api::line-setting.line-setting').findOne({
+                  where: { documentId: lineSettingId, isActive: true },
+                });
+              }
+
+              if (!setting) {
+                setting = await strapi.db.query('api::line-setting.line-setting').findOne({
+                  where: { workspaceId: chat.workspaceId, isActive: true },
+                });
+              }
+
+              if (setting && chat.visitorId) {
+                const client = new line.messagingApi.MessagingApiClient({
+                  channelAccessToken: setting.channelAccessToken,
+                });
+                await client.pushMessage({
+                  to: chat.visitorId,
+                  messages: [{ type: 'text', text: content }],
+                });
+                strapi.log.info(`[LINE] Auto-reply sent to ${chat.visitorId} in conv:${chatDocumentId}`);
+              }
+            } catch (lineErr) {
+              strapi.log.error(`[LINE] Auto-reply error: ${lineErr.message}`);
+            }
           }
         }
 

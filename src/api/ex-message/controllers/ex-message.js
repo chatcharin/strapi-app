@@ -6,6 +6,7 @@
 
 const { createCoreController } = require('@strapi/strapi').factories;
 const { getIO } = require('../../../socket');
+const line = require('@line/bot-sdk');
 
 const isNumericId = (value) => {
   if (typeof value !== 'string' && typeof value !== 'number') return false;
