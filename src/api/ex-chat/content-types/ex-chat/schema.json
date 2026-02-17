@@ -17,7 +17,7 @@
     },
     "channel": {
       "type": "enumeration",
-      "enum": ["widget", "facebook", "line"],
+      "enum": ["widget", "facebook", "instagram", "line"],
       "required": true
     },
     "visitorId": {
@@ -45,6 +45,18 @@
     "unreadCount": {
       "type": "integer",
       "default": 0
+    },
+    "lineSettingId": {
+      "type": "string"
+    },
+    "lineChannelId": {
+      "type": "string"
+    },
+    "lineSettingName": {
+      "type": "string"
+    },
+    "lineUserId": {
+      "type": "string"
     },
     "metadata": {
       "type": "json"

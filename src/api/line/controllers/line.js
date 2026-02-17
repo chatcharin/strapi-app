@@ -1,62 +1,7 @@
 'use strict';
 
-const crypto = require('crypto');
 const { getIO } = require('../../../socket');
-
-const getRawBodyString = (ctx) => {
-  const raw = ctx.request.body && ctx.request.body[Symbol.for('unparsedBody')];
-  if (typeof raw === 'string') return raw;
-  if (Buffer.isBuffer(raw)) return raw.toString('utf8');
-  if (typeof ctx.request.body === 'string') return ctx.request.body;
-  return JSON.stringify(ctx.request.body || {});
-};
-
-const validateLineSignature = (rawBody, channelSecret, signatureHeader) => {
-  if (!signatureHeader) return false;
-  const hmac = crypto.createHmac('SHA256', channelSecret);
-  hmac.update(rawBody);
-  const digest = hmac.digest();
-  const signatureBuffer = Buffer.from(signatureHeader, 'base64');
-  if (digest.length !== signatureBuffer.length) return false;
-  return crypto.timingSafeEqual(digest, signatureBuffer);
-};
-
-/**
- * @typedef {Object} LineFetchOptions
- * @property {string} [method='GET']
- * @property {string} [accessToken]
- * @property {string} [retryKey]
- * @property {any} [body]
- */
-
-/**
- * @param {string} path
- * @param {LineFetchOptions} options
- * @returns {Promise<any>}
- */
-const lineFetch = async (path, { method = 'GET', accessToken, retryKey, body } = {}) => {
-  const res = await fetch(`https://api.line.me${path}`, {
-    method,
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      ...(retryKey ? { 'X-Line-Retry-Key': retryKey } : {}),
-      ...(body ? { 'Content-Type': 'application/json' } : {}),
-    },
-    body: body ? JSON.stringify(body) : undefined,
-  });
-
-  if (!res.ok) {
-    const text = await res.text().catch(() => '');
-    const msg = text || `${res.status} ${res.statusText}`;
-    const err = /** @type {Error & { status?: number }} */ (new Error(msg));
-    err.status = res.status;
-    throw err;
-  }
-
-  const contentType = res.headers.get('content-type') || '';
-  if (contentType.includes('application/json')) return res.json();
-  return res.text();
-};
+const lineService = require('../services/line');
 
 module.exports = {
   async callback(ctx) {
@@ -67,15 +12,18 @@ module.exports = {
     });
 
     if (!setting || !setting.isActive) {
+      strapi.log.warn(
+        `[LINE] Callback ignored for settingId=${settingId} (${!setting ? 'setting not found' : 'setting inactive'})`
+      );
       ctx.status = 200;
       ctx.body = { ok: true };
       return;
     }
 
     const signature = ctx.request.headers['x-line-signature'];
-    const rawBody = getRawBodyString(ctx);
+    const rawBody = lineService.getRawBodyString(ctx);
 
-    const isValid = validateLineSignature(rawBody, setting.channelSecret, signature);
+    const isValid = lineService.validateLineSignature(rawBody, setting.channelSecret, signature);
     if (!isValid) {
       strapi.log.warn(`[LINE-RAW] Invalid signature for setting ${settingId}`);
       ctx.status = 200;
@@ -87,6 +35,8 @@ module.exports = {
     const events = (body && body.events) || [];
     const io = getIO();
 
+    strapi.log.info(`[LINE] Callback received settingId=${settingId} events=${events.length}`);
+
     for (const event of events) {
       try {
         if (!event || event.type !== 'message') continue;
@@ -95,7 +45,7 @@ module.exports = {
         // Deduplicate inbound webhook redelivery using webhookEventId
         if (event.webhookEventId) {
           const existingMessage = await strapi.db.query('api::ex-message.ex-message').findOne({
-            where: { metadata: { lineEventId: event.webhookEventId } },
+            where: { lineEventId: event.webhookEventId },
           });
           if (existingMessage) {
             strapi.log.info(`[LINE] Duplicate event detected, skipping: ${event.webhookEventId}`);
@@ -106,29 +56,53 @@ module.exports = {
         const lineUserId = event.source && event.source.userId;
         if (!lineUserId) continue;
 
+        const lineVisitorKey = `line:${setting.documentId}:${lineUserId}`;
+        const legacyLineVisitorKey = `line:${lineUserId}`;
+
         let visitorName = lineUserId;
         let visitorAvatar = null;
+        let profileFetched = false;
 
         try {
-          const profile = await lineFetch(`/v2/bot/profile/${encodeURIComponent(lineUserId)}`, {
+          const profile = await lineService.lineFetch(`/v2/bot/profile/${encodeURIComponent(lineUserId)}`, {
             method: 'GET',
             accessToken: setting.channelAccessToken,
           });
           visitorName = profile.displayName || lineUserId;
           visitorAvatar = profile.pictureUrl || null;
+          profileFetched = true;
         } catch (profileErr) {
-          strapi.log.warn(`[LINE-RAW] Could not fetch profile for ${lineUserId}: ${profileErr.message}`);
+          strapi.log.info(`[LINE-RAW] Could not fetch profile for ${lineUserId}: ${profileErr.message}`);
         }
+
+        strapi.log.info(
+          `[LINE] visitor resolve pre-chat settingId=${setting.documentId} workspaceId=${setting.workspaceId} lineUserId=${lineUserId} profileFetched=${profileFetched} name=${visitorName}`
+        );
 
         let chat = await strapi.db.query('api::ex-chat.ex-chat').findOne({
           where: {
             workspaceId: setting.workspaceId,
             channel: 'line',
-            visitorId: lineUserId,
+            lineSettingId: setting.documentId,
             status: { $in: ['open', 'pending'] },
+            visitorId: { $in: [lineUserId, legacyLineVisitorKey, lineVisitorKey] },
           },
           orderBy: { updatedAt: 'desc' },
         });
+
+        if (chat && !profileFetched) {
+          visitorName = chat.visitorName || visitorName;
+          visitorAvatar = chat.visitorAvatar || visitorAvatar;
+        }
+
+        if (!chat && !profileFetched) {
+          visitorName = 'Unknown User (Profile Error)';
+          visitorAvatar = null;
+        }
+
+        strapi.log.info(
+          `[LINE] visitor resolved settingId=${setting.documentId} workspaceId=${setting.workspaceId} lineUserId=${lineUserId} chat=${chat ? chat.documentId : 'new'} name=${visitorName}`
+        );
 
         if (!chat) {
           chat = await strapi.db.query('api::ex-chat.ex-chat').create({
@@ -140,7 +114,11 @@ module.exports = {
               visitorAvatar,
               status: 'open',
               unreadCount: 0,
-              metadata: { lineSettingId: setting.documentId },
+              lineSettingId: setting.documentId,
+              lineChannelId: setting.channelId || null,
+              lineSettingName: setting.name || null,
+              lineUserId,
+              metadata: { lineSettingId: setting.documentId, lineUserId },
               publishedAt: new Date(),
             },
           });
@@ -148,10 +126,22 @@ module.exports = {
           if (io && chat.workspaceId) {
             io.to(`ws:${chat.workspaceId}`).emit('conversation:new', chat);
           }
-        } else if (visitorName !== chat.visitorName || visitorAvatar !== chat.visitorAvatar) {
+        } else if (profileFetched && (visitorName !== chat.visitorName || visitorAvatar !== chat.visitorAvatar)) {
           await strapi.db.query('api::ex-chat.ex-chat').update({
             where: { id: chat.id },
             data: { visitorName, visitorAvatar },
+          });
+        }
+
+        if (chat && (!chat.lineSettingId || !chat.lineUserId || !chat.lineChannelId || !chat.lineSettingName)) {
+          await strapi.db.query('api::ex-chat.ex-chat').update({
+            where: { id: chat.id },
+            data: {
+              lineSettingId: chat.lineSettingId || setting.documentId,
+              lineChannelId: chat.lineChannelId || setting.channelId || null,
+              lineSettingName: chat.lineSettingName || setting.name || null,
+              lineUserId: chat.lineUserId || lineUserId,
+            },
           });
         }
 
@@ -166,6 +156,7 @@ module.exports = {
             senderAvatar: visitorAvatar,
             status: 'sent',
             publishedAt: new Date(),
+            lineEventId: event.webhookEventId || null,
             metadata: event.webhookEventId ? { lineEventId: event.webhookEventId } : undefined,
           },
         });
@@ -211,7 +202,22 @@ module.exports = {
     if (!chat) return ctx.notFound('Chat not found');
     if (chat.channel !== 'line') return ctx.badRequest('Chat is not a LINE channel');
 
-    const lineSettingId = chat.metadata && chat.metadata.lineSettingId;
+    const deriveLineUserIdFromVisitorId = (visitorId) => {
+      if (!visitorId || typeof visitorId !== 'string') return visitorId;
+      if (!visitorId.startsWith('line:')) return visitorId;
+      // Supported formats:
+      // - line:<userId>
+      // - line:<settingId>:<userId>
+      const parts = visitorId.split(':');
+      if (parts.length >= 3) return parts.slice(2).join(':');
+      return parts.slice(1).join(':');
+    };
+
+    const lineUserId = chat.lineUserId || (chat.metadata && chat.metadata.lineUserId) || deriveLineUserIdFromVisitorId(chat.visitorId);
+
+    if (!lineUserId) return ctx.badRequest('Missing LINE user id');
+
+    const lineSettingId = chat.lineSettingId || (chat.metadata && chat.metadata.lineSettingId);
     let setting = null;
 
     if (lineSettingId) {
@@ -228,17 +234,14 @@ module.exports = {
 
     if (!setting) return ctx.badRequest('No active LINE setting found for this workspace');
 
+    strapi.log.info(
+      `[LINE] push request chatId=${chatId} workspaceId=${chat.workspaceId} lineSettingId=${setting.documentId} lineChannelId=${setting.channelId || ''} lineUserId=${lineUserId} contentLength=${String(
+        content
+      ).length} preview=${String(content).substring(0, 80)}`
+    );
+
     try {
-      const retryKey = crypto.randomUUID();
-      await lineFetch('/v2/bot/message/push', {
-        method: 'POST',
-        accessToken: setting.channelAccessToken,
-        retryKey,
-        body: {
-          to: chat.visitorId,
-          messages: [{ type: 'text', text: content }],
-        },
-      });
+      await lineService.sendMessageToLine(lineUserId, content, setting.channelAccessToken);
     } catch (lineErr) {
       strapi.log.error(`[LINE-RAW] Push message error: ${lineErr.message}`);
       return ctx.badRequest(`LINE API error: ${lineErr.message}`);

@@ -25,7 +25,7 @@ module.exports = [
     config: {
       origin: allowedOrigins,
       methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-      headers: ['Content-Type', 'Authorization', 'Origin', 'Accept', 'Access-Control-Allow-Origin', 'X-Workspace-Id'],
+      headers: ['Content-Type', 'Authorization', 'Origin', 'Accept', 'Access-Control-Allow-Origin', 'X-Workspace-Id', 'X-Line-Retry-Key'],
       credentials: true,
     },
   },

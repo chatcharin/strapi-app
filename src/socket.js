@@ -1,7 +1,7 @@
 'use strict';
 
 const { Server } = require('socket.io');
-const line = require('@line/bot-sdk');
+const lineService = require('./api/line/services/line');
 
 let io = null;
 
@@ -40,6 +40,7 @@ function initSocket(strapi) {
       methods: ['GET', 'POST'],
       credentials: true,
     },
+    transports: ['websocket', 'polling'],
   });
 
   io.on('connection', (socket) => {
@@ -183,13 +184,7 @@ function initSocket(strapi) {
               }
 
               if (setting && chat.visitorId) {
-                const client = new line.messagingApi.MessagingApiClient({
-                  channelAccessToken: setting.channelAccessToken,
-                });
-                await client.pushMessage({
-                  to: chat.visitorId,
-                  messages: [{ type: 'text', text: content }],
-                });
+                await lineService.sendMessageToLine(chat.visitorId, content, setting.channelAccessToken);
                 strapi.log.info(`[LINE] Auto-reply sent to ${chat.visitorId} in conv:${chatDocumentId}`);
               }
             } catch (lineErr) {

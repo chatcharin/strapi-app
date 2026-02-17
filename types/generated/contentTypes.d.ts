@@ -673,13 +673,19 @@ export interface ApiExChatExChat extends Struct.CollectionTypeSchema {
     draftAndPublish: false;
   };
   attributes: {
-    channel: Schema.Attribute.Enumeration<['widget', 'facebook', 'line']> &
+    channel: Schema.Attribute.Enumeration<
+      ['widget', 'facebook', 'instagram', 'line']
+    > &
       Schema.Attribute.Required;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
     lastMessage: Schema.Attribute.Text;
     lastMessageAt: Schema.Attribute.DateTime;
+    lineChannelId: Schema.Attribute.String;
+    lineSettingId: Schema.Attribute.String;
+    lineSettingName: Schema.Attribute.String;
+    lineUserId: Schema.Attribute.String;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
@@ -725,12 +731,14 @@ export interface ApiExMessageExMessage extends Struct.CollectionTypeSchema {
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
     fileUrl: Schema.Attribute.String;
+    lineEventId: Schema.Attribute.String & Schema.Attribute.Unique;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
       'api::ex-message.ex-message'
     > &
       Schema.Attribute.Private;
+    metadata: Schema.Attribute.JSON;
     publishedAt: Schema.Attribute.DateTime;
     senderAvatar: Schema.Attribute.String;
     senderName: Schema.Attribute.String;

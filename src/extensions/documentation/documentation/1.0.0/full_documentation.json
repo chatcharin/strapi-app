@@ -14,7 +14,7 @@
       "name": "Apache 2.0",
       "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
     },
-    "x-generation-date": "2026-02-16T09:31:46.876Z"
+    "x-generation-date": "2026-02-17T03:52:50.408Z"
   },
   "x-strapi-config": {
     "plugins": [
@@ -21016,6 +21016,7 @@
                 "enum": [
                   "widget",
                   "facebook",
+                  "instagram",
                   "line"
                 ]
               },
@@ -21045,6 +21046,18 @@
               },
               "unreadCount": {
                 "type": "integer"
+              },
+              "lineSettingId": {
+                "type": "string"
+              },
+              "lineChannelId": {
+                "type": "string"
+              },
+              "lineSettingName": {
+                "type": "string"
+              },
+              "lineUserId": {
+                "type": "string"
               },
               "metadata": {},
               "locale": {
@@ -21126,6 +21139,7 @@
             "enum": [
               "widget",
               "facebook",
+              "instagram",
               "line"
             ]
           },
@@ -21155,6 +21169,18 @@
           },
           "unreadCount": {
             "type": "integer"
+          },
+          "lineSettingId": {
+            "type": "string"
+          },
+          "lineChannelId": {
+            "type": "string"
+          },
+          "lineSettingName": {
+            "type": "string"
+          },
+          "lineUserId": {
+            "type": "string"
           },
           "metadata": {},
           "createdAt": {
@@ -21465,6 +21491,7 @@
                   "enum": [
                     "widget",
                     "facebook",
+                    "instagram",
                     "line"
                   ]
                 },
@@ -21494,6 +21521,18 @@
                 },
                 "unreadCount": {
                   "type": "integer"
+                },
+                "lineSettingId": {
+                  "type": "string"
+                },
+                "lineChannelId": {
+                  "type": "string"
+                },
+                "lineSettingName": {
+                  "type": "string"
+                },
+                "lineUserId": {
+                  "type": "string"
                 },
                 "metadata": {},
                 "createdAt": {
@@ -21629,6 +21668,10 @@
                   "failed"
                 ]
               },
+              "lineEventId": {
+                "type": "string"
+              },
+              "metadata": {},
               "locale": {
                 "type": "string"
               },
@@ -21751,6 +21794,10 @@
               "failed"
             ]
           },
+          "lineEventId": {
+            "type": "string"
+          },
+          "metadata": {},
           "createdAt": {
             "type": "string",
             "format": "date-time"
@@ -22100,6 +22147,10 @@
                     "failed"
                   ]
                 },
+                "lineEventId": {
+                  "type": "string"
+                },
+                "metadata": {},
                 "createdAt": {
                   "type": "string",
                   "format": "date-time"

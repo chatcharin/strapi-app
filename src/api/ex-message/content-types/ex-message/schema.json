@@ -49,6 +49,13 @@
       "enum": ["sending", "sent", "delivered", "read", "failed"],
       "default": "sent",
       "required": true
+    },
+    "lineEventId": {
+      "type": "string",
+      "unique": true
+    },
+    "metadata": {
+      "type": "json"
     }
   }
 }
