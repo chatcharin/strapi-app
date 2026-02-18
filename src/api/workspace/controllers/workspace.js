@@ -3,6 +3,45 @@
 const { createCoreController } = require('@strapi/strapi').factories;
 
 module.exports = createCoreController('api::workspace.workspace', ({ strapi }) => ({
+  async find(ctx) {
+    // Defensive: some clients pass documentId into filters[id], which breaks Postgres integer casting.
+    // Normalize filters so `id` is only used when the value is a numeric string/number.
+    if (ctx?.query?.filters) {
+      const isNumericString = (v) => {
+        if (typeof v !== 'string') return false;
+        const asInt = Number.parseInt(v, 10);
+        return Number.isFinite(asInt) && String(asInt) === v;
+      };
+
+      const normalizeFilterObject = (obj) => {
+        if (!obj || typeof obj !== 'object') return;
+
+        // Handle shapes like { id: { $eq: 'abc' } }
+        const idFilter = obj.id;
+        const eqValue = idFilter && typeof idFilter === 'object' ? idFilter.$eq : undefined;
+        if (typeof eqValue === 'string' && !isNumericString(eqValue)) {
+          // Prefer documentId for non-numeric identifiers
+          if (!obj.documentId) {
+            obj.documentId = { $eq: eqValue };
+          }
+          delete obj.id;
+        }
+      };
+
+      const filters = ctx.query.filters;
+      // Normalize top-level
+      normalizeFilterObject(filters);
+      // Normalize OR branches
+      if (Array.isArray(filters.$or)) {
+        for (const branch of filters.$or) {
+          normalizeFilterObject(branch);
+        }
+      }
+    }
+
+    return await super.find(ctx);
+  },
+
   // Helper to resolve UUID documentId to integer ID
   async resolveIdToInteger(api, identifier) {
     if (identifier === undefined || identifier === null) return undefined;

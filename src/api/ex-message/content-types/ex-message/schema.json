@@ -17,7 +17,7 @@
     },
     "channel": {
       "type": "enumeration",
-      "enum": ["widget", "facebook", "line"],
+      "enum": ["widget", "facebook", "instagram", "whatsapp", "line"],
       "required": true
     },
     "senderRole": {

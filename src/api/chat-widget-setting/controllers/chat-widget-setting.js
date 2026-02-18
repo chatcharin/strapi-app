@@ -3,6 +3,37 @@
 const { createCoreController } = require('@strapi/strapi').factories;
 
 module.exports = createCoreController('api::chat-widget-setting.chat-widget-setting', ({ strapi }) => {
+  const ensureWorkspacePopulate = (ctx) => {
+    if (!ctx.query) ctx.query = {};
+
+    // If caller explicitly set populate, keep it. Otherwise, populate workspace by default.
+    if (ctx.query.populate === undefined) {
+      ctx.query.populate = { workspace: true };
+      return;
+    }
+
+    // populate can be string, array, or object. Normalize and ensure workspace is included.
+    if (typeof ctx.query.populate === 'string') {
+      if (!ctx.query.populate.split(',').map((s) => s.trim()).includes('workspace')) {
+        ctx.query.populate = `${ctx.query.populate},workspace`;
+      }
+      return;
+    }
+
+    if (Array.isArray(ctx.query.populate)) {
+      if (!ctx.query.populate.includes('workspace')) {
+        ctx.query.populate = [...ctx.query.populate, 'workspace'];
+      }
+      return;
+    }
+
+    if (typeof ctx.query.populate === 'object' && ctx.query.populate !== null) {
+      if (ctx.query.populate.workspace === undefined) {
+        ctx.query.populate.workspace = true;
+      }
+    }
+  };
+
   const resolveToDocumentId = async (value) => {
     if (!value) return null;
 
@@ -22,7 +53,13 @@ module.exports = createCoreController('api::chat-widget-setting.chat-widget-sett
   };
 
   return {
+    async find(ctx) {
+      ensureWorkspacePopulate(ctx);
+      return await super.find(ctx);
+    },
+
     async findOne(ctx) {
+      ensureWorkspacePopulate(ctx);
       const documentId = await resolveToDocumentId(ctx.params.id);
       if (!documentId) return ctx.notFound('Chat widget setting not found');
       ctx.params.id = String(documentId);

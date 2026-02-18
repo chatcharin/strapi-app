@@ -54,15 +54,24 @@ module.exports = createCoreController('api::ex-chat.ex-chat', ({ strapi }) => ({
     const bodyData = (ctx.request && ctx.request.body && ctx.request.body.data) || null;
 
     if (bodyData && bodyData.workspaceId && bodyData.channel && bodyData.visitorId) {
-      const existing = await strapi.db.query('api::ex-chat.ex-chat').findOne({
-        where: {
-          workspaceId: bodyData.workspaceId,
-          channel: bodyData.channel,
-          visitorId: bodyData.visitorId,
-          status: {
-            $in: ['open', 'pending'],
-          },
+      const widgetSettingId = bodyData.widgetSettingId || (bodyData.metadata && bodyData.metadata.widgetSettingId);
+
+      const where = {
+        workspaceId: bodyData.workspaceId,
+        channel: bodyData.channel,
+        visitorId: bodyData.visitorId,
+        status: {
+          $in: ['open', 'pending'],
         },
+      };
+
+      // For widget channel, separate conversations per widgetSettingId when provided
+      if (bodyData.channel === 'widget' && widgetSettingId) {
+        where.widgetSettingId = widgetSettingId;
+      }
+
+      const existing = await strapi.db.query('api::ex-chat.ex-chat').findOne({
+        where,
         orderBy: { updatedAt: 'desc' },
       });
 

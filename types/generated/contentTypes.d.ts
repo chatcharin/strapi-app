@@ -495,17 +495,23 @@ export interface ApiChatWidgetSettingChatWidgetSetting
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    description: Schema.Attribute.Text;
+    embedCode: Schema.Attribute.Text;
+    lastUpdate: Schema.Attribute.DateTime;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
       'api::chat-widget-setting.chat-widget-setting'
     > &
       Schema.Attribute.Private;
+    name: Schema.Attribute.String;
     position: Schema.Attribute.Enumeration<['left', 'right']> &
       Schema.Attribute.DefaultTo<'right'>;
     primaryColor: Schema.Attribute.String &
       Schema.Attribute.DefaultTo<'#4f46e5'>;
     publishedAt: Schema.Attribute.DateTime;
+    status: Schema.Attribute.Enumeration<['active', 'inactive']> &
+      Schema.Attribute.DefaultTo<'active'>;
     theme: Schema.Attribute.Enumeration<['light', 'dark']> &
       Schema.Attribute.DefaultTo<'dark'>;
     updatedAt: Schema.Attribute.DateTime;
@@ -674,7 +680,7 @@ export interface ApiExChatExChat extends Struct.CollectionTypeSchema {
   };
   attributes: {
     channel: Schema.Attribute.Enumeration<
-      ['widget', 'facebook', 'instagram', 'line']
+      ['widget', 'facebook', 'instagram', 'whatsapp', 'line']
     > &
       Schema.Attribute.Required;
     createdAt: Schema.Attribute.DateTime;
@@ -693,6 +699,7 @@ export interface ApiExChatExChat extends Struct.CollectionTypeSchema {
     > &
       Schema.Attribute.Private;
     metadata: Schema.Attribute.JSON;
+    metaSettingId: Schema.Attribute.String;
     publishedAt: Schema.Attribute.DateTime;
     status: Schema.Attribute.Enumeration<['open', 'closed', 'pending']> &
       Schema.Attribute.Required &
@@ -704,6 +711,7 @@ export interface ApiExChatExChat extends Struct.CollectionTypeSchema {
     visitorAvatar: Schema.Attribute.String;
     visitorId: Schema.Attribute.String & Schema.Attribute.Required;
     visitorName: Schema.Attribute.String;
+    widgetSettingId: Schema.Attribute.String;
     workspaceId: Schema.Attribute.String & Schema.Attribute.Required;
   };
 }
@@ -720,7 +728,9 @@ export interface ApiExMessageExMessage extends Struct.CollectionTypeSchema {
     draftAndPublish: false;
   };
   attributes: {
-    channel: Schema.Attribute.Enumeration<['widget', 'facebook', 'line']> &
+    channel: Schema.Attribute.Enumeration<
+      ['widget', 'facebook', 'instagram', 'whatsapp', 'line']
+    > &
       Schema.Attribute.Required;
     chatId: Schema.Attribute.String & Schema.Attribute.Required;
     content: Schema.Attribute.Text & Schema.Attribute.Required;
@@ -960,6 +970,46 @@ export interface ApiMessageMessage extends Struct.CollectionTypeSchema {
       'manyToOne',
       'api::workspace.workspace'
     >;
+  };
+}
+
+export interface ApiMetaSettingMetaSetting extends Struct.CollectionTypeSchema {
+  collectionName: 'meta_settings';
+  info: {
+    displayName: 'Meta Setting';
+    pluralName: 'meta-settings';
+    singularName: 'meta-setting';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    accessToken: Schema.Attribute.Text & Schema.Attribute.Required;
+    accountId: Schema.Attribute.String & Schema.Attribute.Required;
+    appSecret: Schema.Attribute.String & Schema.Attribute.Required;
+    channel: Schema.Attribute.Enumeration<
+      ['facebook', 'instagram', 'whatsapp']
+    > &
+      Schema.Attribute.Required;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    isActive: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<true>;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::meta-setting.meta-setting'
+    > &
+      Schema.Attribute.Private;
+    metadata: Schema.Attribute.JSON;
+    name: Schema.Attribute.String & Schema.Attribute.Required;
+    publishedAt: Schema.Attribute.DateTime;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    verifyToken: Schema.Attribute.String;
+    webhookUrl: Schema.Attribute.String;
+    workspaceId: Schema.Attribute.String & Schema.Attribute.Required;
   };
 }
 
@@ -1774,6 +1824,7 @@ declare module '@strapi/strapi' {
       'api::knowledge-base.knowledge-base': ApiKnowledgeBaseKnowledgeBase;
       'api::line-setting.line-setting': ApiLineSettingLineSetting;
       'api::message.message': ApiMessageMessage;
+      'api::meta-setting.meta-setting': ApiMetaSettingMetaSetting;
       'api::model-icon.model-icon': ApiModelIconModelIcon;
       'api::user-file.user-file': ApiUserFileUserFile;
       'api::workspace-role.workspace-role': ApiWorkspaceRoleWorkspaceRole;

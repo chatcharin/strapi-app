@@ -17,8 +17,11 @@
     },
     "channel": {
       "type": "enumeration",
-      "enum": ["widget", "facebook", "instagram", "line"],
+      "enum": ["widget", "facebook", "instagram", "whatsapp", "line"],
       "required": true
+    },
+    "widgetSettingId": {
+      "type": "string"
     },
     "visitorId": {
       "type": "string",
@@ -56,6 +59,9 @@
       "type": "string"
     },
     "lineUserId": {
+      "type": "string"
+    },
+    "metaSettingId": {
       "type": "string"
     },
     "metadata": {

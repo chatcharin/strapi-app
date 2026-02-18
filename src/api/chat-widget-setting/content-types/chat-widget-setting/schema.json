@@ -11,6 +11,23 @@
     "draftAndPublish": false
   },
   "attributes": {
+    "name": {
+      "type": "string"
+    },
+    "description": {
+      "type": "text"
+    },
+    "embedCode": {
+      "type": "text"
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": ["active", "inactive"],
+      "default": "active"
+    },
+    "lastUpdate": {
+      "type": "datetime"
+    },
     "workspace": {
       "type": "relation",
       "relation": "manyToOne",

@@ -2,6 +2,7 @@
 
 const { Server } = require('socket.io');
 const lineService = require('./api/line/services/line');
+const metaService = require('./api/meta/services/meta');
 
 let io = null;
 
@@ -17,7 +18,13 @@ const origins = (process.env.CORS_ORIGINS || '')
   .map((o) => o.trim())
   .filter(Boolean);
 
-const allowedOrigins = origins.length > 0 ? origins : defaultOrigins;
+const allowedOrigins = origins.includes('*') ? '*' : origins.length > 0 ? origins : defaultOrigins;
+
+const isOriginAllowed = (origin) => {
+  if (!origin) return true;
+  if (allowedOrigins === '*') return true;
+  return Array.isArray(allowedOrigins) ? allowedOrigins.includes(origin) : origin === allowedOrigins;
+};
 
 const resolveChatIdToDocumentId = async (strapi, chatId) => {
   if (!chatId) return null;
@@ -36,7 +43,11 @@ function initSocket(strapi) {
 
   io = new Server(httpServer, {
     cors: {
-      origin: allowedOrigins,
+      origin: (origin, callback) => {
+        // allow server-to-server / embedded / file:// cases where Origin may be undefined
+        if (isOriginAllowed(origin)) return callback(null, true);
+        return callback(new Error('Not allowed by Socket.IO CORS'), false);
+      },
       methods: ['GET', 'POST'],
       credentials: true,
     },
@@ -148,6 +159,11 @@ function initSocket(strapi) {
             lastMessageAt: new Date(),
           };
 
+          // Also broadcast message to workspace room for clients that only joined workspace
+          if (chat.workspaceId) {
+            io.to(`ws:${chat.workspaceId}`).emit('message:new', messagePayload);
+          }
+
           // Increment unreadCount only for visitor messages
           if (senderRole === 'visitor') {
             updateData.unreadCount = (chat.unreadCount || 0) + 1;
@@ -189,6 +205,44 @@ function initSocket(strapi) {
               }
             } catch (lineErr) {
               strapi.log.error(`[LINE] Auto-reply error: ${lineErr.message}`);
+            }
+          }
+
+          // Auto-send Meta reply when agent sends message to Meta channels
+          if (senderRole === 'agent' && ['facebook', 'instagram', 'whatsapp'].includes(chat.channel)) {
+            try {
+              const metaSettingId = chat.metaSettingId || (chat.metadata && chat.metadata.metaSettingId);
+              let setting = null;
+
+              if (metaSettingId) {
+                setting = await strapi.db.query('api::meta-setting.meta-setting').findOne({
+                  where: { documentId: metaSettingId, isActive: true },
+                });
+              }
+
+              if (!setting) {
+                setting = await strapi.db.query('api::meta-setting.meta-setting').findOne({
+                  where: { workspaceId: chat.workspaceId, channel: chat.channel, isActive: true },
+                });
+              }
+
+              if (!setting) {
+                strapi.log.warn(
+                  `[META] Auto-reply skipped: no active meta-setting found (workspaceId=${chat.workspaceId} channel=${chat.channel} conv:${chatDocumentId})`
+                );
+              } else if (!chat.visitorId) {
+                strapi.log.warn(`[META] Auto-reply skipped: missing visitorId (conv:${chatDocumentId})`);
+              } else {
+                await metaService.sendMessage({
+                  channel: chat.channel,
+                  recipientId: chat.visitorId,
+                  content,
+                  setting,
+                });
+                strapi.log.info(`[META] Auto-reply sent to ${chat.visitorId} channel=${chat.channel} conv:${chatDocumentId}`);
+              }
+            } catch (metaErr) {
+              strapi.log.error(`[META] Auto-reply error: ${metaErr.message}`);
             }
           }
         }

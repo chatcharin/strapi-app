@@ -6,6 +6,7 @@
 
 const { createCoreController } = require('@strapi/strapi').factories;
 const { getIO } = require('../../../socket');
+const metaService = require('../../meta/services/meta');
 
 const isNumericId = (value) => {
   if (typeof value !== 'string' && typeof value !== 'number') return false;
@@ -74,6 +75,75 @@ module.exports = createCoreController('api::ex-message.ex-message', ({ strapi })
     }
 
     const response = await super.create(ctx);
+
+    try {
+      const data = response && response.data ? response.data : null;
+      const attrs = data && data.attributes ? data.attributes : data;
+      const senderRole = (attrs && attrs.senderRole) || 'visitor';
+      const channel = attrs && attrs.channel;
+      const content = (attrs && attrs.content) || '';
+      const chatIdRaw = (attrs && attrs.chatId) || null;
+      const chatDocumentId = await resolveChatIdToDocumentId(strapi, chatIdRaw);
+
+      if (
+        senderRole === 'agent' &&
+        ['facebook', 'instagram', 'whatsapp'].includes(channel) &&
+        chatDocumentId &&
+        content
+      ) {
+        const chat = await strapi.db.query('api::ex-chat.ex-chat').findOne({
+          where: { documentId: chatDocumentId },
+        });
+
+        if (chat && chat.visitorId) {
+          const metaSettingId = chat.metaSettingId || (chat.metadata && chat.metadata.metaSettingId);
+          let setting = null;
+
+          if (metaSettingId) {
+            setting = await strapi.db.query('api::meta-setting.meta-setting').findOne({
+              where: { documentId: metaSettingId, isActive: true },
+            });
+          }
+
+          if (!setting) {
+            setting = await strapi.db.query('api::meta-setting.meta-setting').findOne({
+              where: { workspaceId: chat.workspaceId, channel: chat.channel, isActive: true },
+            });
+          }
+
+          if (setting) {
+            await metaService.sendMessage({
+              channel: chat.channel,
+              recipientId: chat.visitorId,
+              content,
+              setting,
+            });
+            strapi.log.info(`[META] REST auto-reply sent to ${chat.visitorId} channel=${chat.channel} conv:${chatDocumentId}`);
+          } else {
+            strapi.log.warn(
+              `[META] REST auto-reply skipped: no active meta-setting found (workspaceId=${chat.workspaceId} channel=${chat.channel} conv:${chatDocumentId})`
+            );
+          }
+        }
+      }
+    } catch (metaErr) {
+      try {
+        const data = response && response.data ? response.data : null;
+        if (data && data.documentId) {
+          await strapi.db.query('api::ex-message.ex-message').update({
+            where: { documentId: data.documentId },
+            data: {
+              status: 'failed',
+              metadata: { ...(data.metadata || {}), metaSendError: metaErr.message },
+            },
+          });
+        }
+      } catch (_) {
+        // ignore
+      }
+
+      strapi.log.error(`[META] REST auto-reply error: ${metaErr.message}`);
+    }
 
     const io = getIO();
     if (io && response.data) {

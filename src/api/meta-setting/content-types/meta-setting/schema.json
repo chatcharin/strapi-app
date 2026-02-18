@@ -1,0 +1,52 @@
+{
+  "kind": "collectionType",
+  "collectionName": "meta_settings",
+  "info": {
+    "singularName": "meta-setting",
+    "pluralName": "meta-settings",
+    "displayName": "Meta Setting"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "workspaceId": {
+      "type": "string",
+      "required": true
+    },
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "channel": {
+      "type": "enumeration",
+      "enum": ["facebook", "instagram", "whatsapp"],
+      "required": true
+    },
+    "accessToken": {
+      "type": "text",
+      "required": true
+    },
+    "appSecret": {
+      "type": "string",
+      "required": true
+    },
+    "verifyToken": {
+      "type": "string"
+    },
+    "accountId": {
+      "type": "string",
+      "required": true
+    },
+    "webhookUrl": {
+      "type": "string"
+    },
+    "isActive": {
+      "type": "boolean",
+      "default": true
+    },
+    "metadata": {
+      "type": "json"
+    }
+  }
+}
