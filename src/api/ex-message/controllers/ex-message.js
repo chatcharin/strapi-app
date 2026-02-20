@@ -167,6 +167,11 @@ module.exports = createCoreController('api::ex-message.ex-message', ({ strapi })
 
           if (senderRole === 'visitor') {
             updateData.unreadCount = (chat.unreadCount || 0) + 1;
+            updateData.lastInboundAt = new Date();
+          }
+
+          if (senderRole === 'agent') {
+            updateData.lastOutboundAt = new Date();
           }
 
           const updatedChat = await strapi.db.query('api::ex-chat.ex-chat').update({

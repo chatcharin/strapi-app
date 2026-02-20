@@ -37,6 +37,9 @@
       "type": "text",
       "required": true
     },
+    "avatarUrl": {
+      "type": "string"
+    },
     "isActive": {
       "type": "boolean",
       "default": true

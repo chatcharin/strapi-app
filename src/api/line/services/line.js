@@ -63,6 +63,7 @@ const lineFetch = async (path, options) => {
     method,
     headers: {
       Authorization: `Bearer ${accessToken}`,
+      Accept: 'application/json',
       ...(retryKey ? { 'X-Line-Retry-Key': retryKey } : {}),
       ...(body ? { 'Content-Type': 'application/json' } : {}),
     },
@@ -86,7 +87,18 @@ const lineFetch = async (path, options) => {
 
   const contentType = res.headers.get('content-type') || '';
   if (contentType.includes('application/json')) return res.json();
-  return res.text();
+
+  const text = await res.text();
+  const trimmed = typeof text === 'string' ? text.trim() : '';
+  if (trimmed && (trimmed.startsWith('{') || trimmed.startsWith('['))) {
+    try {
+      return JSON.parse(trimmed);
+    } catch (_) {
+      // fall through
+    }
+  }
+
+  return text;
 };
 
 /**

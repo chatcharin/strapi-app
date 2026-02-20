@@ -34,8 +34,10 @@ const verifyMetaSignature = (rawBody, appSecret, signatureHeader) => {
   return crypto.timingSafeEqual(a, b);
 };
 
-const graphFetch = async (path, { method = 'GET', accessToken, params, body } = {}) => {
+const graphFetch = async (path, options = {}) => {
   const logger = getLogger();
+
+  const { method = 'GET', accessToken, params, body } = options;
 
   const url = new URL(`${GRAPH_API_BASE}${path.startsWith('/') ? '' : '/'}${path}`);
   if (params && typeof params === 'object') {
@@ -187,11 +189,36 @@ const sendMessage = async ({ channel, recipientId, content, setting }) => {
   });
 };
 
+const getSettingAvatar = async ({ channel, accountId, accessToken }) => {
+  if (!accessToken || !accountId) return null;
+  if (channel === 'whatsapp') return null;
+
+  if (channel === 'instagram') {
+    const res = await graphFetch(`/${encodeURIComponent(accountId)}`, {
+      method: 'GET',
+      accessToken,
+      params: { fields: 'profile_picture_url,username' },
+    });
+
+    return (res && res.profile_picture_url) || null;
+  }
+
+  const res = await graphFetch(`/${encodeURIComponent(accountId)}`, {
+    method: 'GET',
+    accessToken,
+    params: { fields: 'picture.type(square){url},name' },
+  });
+
+  const url = res && res.picture && res.picture.data && res.picture.data.url;
+  return url || null;
+};
+
 module.exports = {
   GRAPH_API_VERSION,
   getRawBodyString,
   verifyMetaSignature,
   extractEvents,
   getProfile,
+  getSettingAvatar,
   sendMessage,
 };

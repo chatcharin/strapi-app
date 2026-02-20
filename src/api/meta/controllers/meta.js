@@ -146,6 +146,7 @@ module.exports = {
           data: {
             lastMessage: e.messageText.substring(0, 500),
             lastMessageAt: new Date(),
+            lastInboundAt: new Date(),
             unreadCount: (chat.unreadCount || 0) + 1,
           },
         });
@@ -235,6 +236,7 @@ module.exports = {
         data: {
           lastMessage: content.substring(0, 500),
           lastMessageAt: new Date(),
+          lastOutboundAt: new Date(),
         },
       });
 

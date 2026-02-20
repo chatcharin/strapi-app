@@ -118,7 +118,7 @@ module.exports = createCoreController('api::workspace.workspace', ({ strapi }) =
     const cookieName = process.env.SELECTED_WS_COOKIE || 'selectedWorkspaceId';
 
     ctx.cookies.set(cookieName, encodeURIComponent(id), {
-      httpOnly: true,
+      httpOnly: false,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       expires,

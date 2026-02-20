@@ -39,10 +39,45 @@
       "default": "open",
       "required": true
     },
+    "assignee": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user"
+    },
+    "assigneeAgent": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::agent.agent"
+    },
+    "assignedAt": {
+      "type": "datetime"
+    },
+    "assignedBy": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user"
+    },
+    "assignmentStatus": {
+      "type": "enumeration",
+      "enum": ["unassigned", "assigned", "auto_assigned"],
+      "default": "unassigned"
+    },
+    "labels": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::chat-label.chat-label",
+      "inversedBy": "chats"
+    },
     "lastMessage": {
       "type": "text"
     },
     "lastMessageAt": {
+      "type": "datetime"
+    },
+    "lastInboundAt": {
+      "type": "datetime"
+    },
+    "lastOutboundAt": {
       "type": "datetime"
     },
     "unreadCount": {

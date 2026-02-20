@@ -167,6 +167,11 @@ function initSocket(strapi) {
           // Increment unreadCount only for visitor messages
           if (senderRole === 'visitor') {
             updateData.unreadCount = (chat.unreadCount || 0) + 1;
+            updateData.lastInboundAt = new Date();
+          }
+
+          if (senderRole === 'agent') {
+            updateData.lastOutboundAt = new Date();
           }
 
           const updatedChat = await strapi.db

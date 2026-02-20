@@ -477,6 +477,41 @@ export interface ApiAgentAgent extends Struct.CollectionTypeSchema {
   };
 }
 
+export interface ApiChatLabelChatLabel extends Struct.CollectionTypeSchema {
+  collectionName: 'chat_labels';
+  info: {
+    description: 'Workspace-scoped inbox labels/tags';
+    displayName: 'Chat Label';
+    pluralName: 'chat-labels';
+    singularName: 'chat-label';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    chats: Schema.Attribute.Relation<'manyToMany', 'api::ex-chat.ex-chat'>;
+    color: Schema.Attribute.String;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    isActive: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<true>;
+    key: Schema.Attribute.String;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::chat-label.chat-label'
+    > &
+      Schema.Attribute.Private;
+    metadata: Schema.Attribute.JSON;
+    name: Schema.Attribute.String & Schema.Attribute.Required;
+    publishedAt: Schema.Attribute.DateTime;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    workspaceId: Schema.Attribute.String & Schema.Attribute.Required;
+  };
+}
+
 export interface ApiChatWidgetSettingChatWidgetSetting
   extends Struct.CollectionTypeSchema {
   collectionName: 'chat_widget_settings';
@@ -679,6 +714,20 @@ export interface ApiExChatExChat extends Struct.CollectionTypeSchema {
     draftAndPublish: false;
   };
   attributes: {
+    assignedAt: Schema.Attribute.DateTime;
+    assignedBy: Schema.Attribute.Relation<
+      'manyToOne',
+      'plugin::users-permissions.user'
+    >;
+    assignee: Schema.Attribute.Relation<
+      'manyToOne',
+      'plugin::users-permissions.user'
+    >;
+    assigneeAgent: Schema.Attribute.Relation<'manyToOne', 'api::agent.agent'>;
+    assignmentStatus: Schema.Attribute.Enumeration<
+      ['unassigned', 'assigned', 'auto_assigned']
+    > &
+      Schema.Attribute.DefaultTo<'unassigned'>;
     channel: Schema.Attribute.Enumeration<
       ['widget', 'facebook', 'instagram', 'whatsapp', 'line']
     > &
@@ -686,8 +735,14 @@ export interface ApiExChatExChat extends Struct.CollectionTypeSchema {
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    labels: Schema.Attribute.Relation<
+      'manyToMany',
+      'api::chat-label.chat-label'
+    >;
+    lastInboundAt: Schema.Attribute.DateTime;
     lastMessage: Schema.Attribute.Text;
     lastMessageAt: Schema.Attribute.DateTime;
+    lastOutboundAt: Schema.Attribute.DateTime;
     lineChannelId: Schema.Attribute.String;
     lineSettingId: Schema.Attribute.String;
     lineSettingName: Schema.Attribute.String;
@@ -906,6 +961,7 @@ export interface ApiLineSettingLineSetting extends Struct.CollectionTypeSchema {
     draftAndPublish: false;
   };
   attributes: {
+    avatarUrl: Schema.Attribute.String;
     channelAccessToken: Schema.Attribute.Text & Schema.Attribute.Required;
     channelId: Schema.Attribute.String & Schema.Attribute.Required;
     channelSecret: Schema.Attribute.String & Schema.Attribute.Required;
@@ -987,6 +1043,7 @@ export interface ApiMetaSettingMetaSetting extends Struct.CollectionTypeSchema {
     accessToken: Schema.Attribute.Text & Schema.Attribute.Required;
     accountId: Schema.Attribute.String & Schema.Attribute.Required;
     appSecret: Schema.Attribute.String & Schema.Attribute.Required;
+    avatarUrl: Schema.Attribute.Text;
     channel: Schema.Attribute.Enumeration<
       ['facebook', 'instagram', 'whatsapp']
     > &
@@ -1813,6 +1870,7 @@ declare module '@strapi/strapi' {
       'admin::transfer-token-permission': AdminTransferTokenPermission;
       'admin::user': AdminUser;
       'api::agent.agent': ApiAgentAgent;
+      'api::chat-label.chat-label': ApiChatLabelChatLabel;
       'api::chat-widget-setting.chat-widget-setting': ApiChatWidgetSettingChatWidgetSetting;
       'api::chat.chat': ApiChatChat;
       'api::document.document': ApiDocumentDocument;

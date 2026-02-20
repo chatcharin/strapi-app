@@ -1,0 +1,42 @@
+{
+  "kind": "collectionType",
+  "collectionName": "chat_labels",
+  "info": {
+    "singularName": "chat-label",
+    "pluralName": "chat-labels",
+    "displayName": "Chat Label",
+    "description": "Workspace-scoped inbox labels/tags"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "workspaceId": {
+      "type": "string",
+      "required": true
+    },
+    "chats": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::ex-chat.ex-chat",
+      "mappedBy": "labels"
+    },
+    "key": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "color": {
+      "type": "string"
+    },
+    "isActive": {
+      "type": "boolean",
+      "default": true
+    },
+    "metadata": {
+      "type": "json"
+    }
+  }
+}
