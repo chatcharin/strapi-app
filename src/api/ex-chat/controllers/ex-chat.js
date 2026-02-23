@@ -49,6 +49,51 @@ const parseActorRef = (value) => {
   return null;
 };
 
+const getAssigneeSnapshot = (chat) => {
+  if (!chat) return { ref: null, displayName: null };
+  if (chat.assigneeAgent) {
+    const a = chat.assigneeAgent;
+    return {
+      ref: { type: 'agent', id: a.id, documentId: a.documentId },
+      displayName: a.name || `Agent ${a.id}`,
+    };
+  }
+  if (chat.assignee) {
+    const u = chat.assignee;
+    return {
+      ref: { type: 'user', id: u.id },
+      displayName: u.username || u.email || `User ${u.id}`,
+    };
+  }
+  return { ref: null, displayName: null };
+};
+
+const getLabelsSnapshot = (chat) => {
+  const labels = (chat && Array.isArray(chat.labels) ? chat.labels : []) || [];
+  const keys = labels.map((l) => l.key || l.name || l.documentId || String(l.id)).filter(Boolean);
+  const ids = labels.map((l) => l.documentId || l.id).filter(Boolean);
+  keys.sort();
+  ids.sort();
+  return { keys, ids };
+};
+
+const sameSnapshotArray = (a, b) => {
+  if (a === b) return true;
+  if (!Array.isArray(a) || !Array.isArray(b)) return false;
+  if (a.length !== b.length) return false;
+  for (let i = 0; i < a.length; i += 1) {
+    if (String(a[i]) !== String(b[i])) return false;
+  }
+  return true;
+};
+
+const sameActorRef = (a, b) => {
+  if (!a && !b) return true;
+  if (!a || !b) return false;
+  if (String(a.type) !== String(b.type)) return false;
+  return String(a.id) === String(b.id);
+};
+
 module.exports = createCoreController('api::ex-chat.ex-chat', ({ strapi }) => ({
   async find(ctx) {
     // Some clients use populate[assignee]=* which may cause Strapi query validation errors
@@ -135,10 +180,24 @@ module.exports = createCoreController('api::ex-chat.ex-chat', ({ strapi }) => ({
     const resolvedDocumentId = await resolveChatIdParamToDocumentId(strapi, ctx.params.id);
     if (!resolvedDocumentId) return ctx.notFound('Chat not found');
 
+    const chatBefore = await strapi.db.query('api::ex-chat.ex-chat').findOne({
+      where: { documentId: resolvedDocumentId },
+      populate: {
+        assignee: { select: ['id', 'username', 'email'] },
+        assigneeAgent: { select: ['id', 'documentId', 'name'] },
+        labels: { select: ['id', 'documentId', 'key', 'name'] },
+      },
+    });
+
     ctx.params.id = String(resolvedDocumentId);
 
     const bodyData = (ctx.request && ctx.request.body && ctx.request.body.data) || null;
     const userId = ctx.state && ctx.state.user && ctx.state.user.id;
+
+    const findUserById = async (id) => {
+      if (!id && id !== 0) return null;
+      return strapi.db.query('plugin::users-permissions.user').findOne({ where: { id: Number(id) } });
+    };
 
     if (bodyData) {
       // Strip deprecated fields
@@ -158,8 +217,14 @@ module.exports = createCoreController('api::ex-chat.ex-chat', ({ strapi }) => ({
           bodyData.assignee = null;
           bodyData.assigneeAgent = ref.id;
         } else {
-          bodyData.assignee = ref.id;
-          bodyData.assigneeAgent = null;
+          const user = await findUserById(ref.id);
+          if (user) {
+            bodyData.assignee = user.id;
+            bodyData.assigneeAgent = null;
+          } else {
+            bodyData.assignee = null;
+            bodyData.assigneeAgent = null;
+          }
         }
       }
 
@@ -171,7 +236,8 @@ module.exports = createCoreController('api::ex-chat.ex-chat', ({ strapi }) => ({
         if (!ref || ref.type === 'agent') {
           bodyData.assignedBy = null;
         } else {
-          bodyData.assignedBy = ref.id;
+          const user = await findUserById(ref.id);
+          bodyData.assignedBy = user ? user.id : null;
         }
       }
     }
@@ -195,7 +261,8 @@ module.exports = createCoreController('api::ex-chat.ex-chat', ({ strapi }) => ({
         // Assign
         if (!bodyData.assignedAt) bodyData.assignedAt = new Date();
         if (userId && !Object.prototype.hasOwnProperty.call(bodyData, 'assignedBy')) {
-          bodyData.assignedBy = userId;
+          const actor = await findUserById(userId);
+          bodyData.assignedBy = actor ? actor.id : null;
         }
         if (!bodyData.assignmentStatus) bodyData.assignmentStatus = 'assigned';
       }
@@ -203,7 +270,79 @@ module.exports = createCoreController('api::ex-chat.ex-chat', ({ strapi }) => ({
       ctx.request.body.data = bodyData;
     }
 
-    return super.update(ctx);
+    const response = await super.update(ctx);
+
+    const chatAfter = await strapi.db.query('api::ex-chat.ex-chat').findOne({
+      where: { documentId: resolvedDocumentId },
+      populate: {
+        assignee: { select: ['id', 'username', 'email'] },
+        assigneeAgent: { select: ['id', 'documentId', 'name'] },
+        labels: { select: ['id', 'documentId', 'key', 'name'] },
+      },
+    });
+
+    const io = getIO();
+    const channel = (chatAfter && chatAfter.channel) || (chatBefore && chatBefore.channel) || 'widget';
+    const workspaceId = (chatAfter && chatAfter.workspaceId) || (chatBefore && chatBefore.workspaceId) || null;
+
+    const createSystemMessage = async ({ content, metadata }) => {
+      const message = await strapi.db.query('api::ex-message.ex-message').create({
+        data: {
+          chatId: resolvedDocumentId,
+          channel,
+          content,
+          contentType: 'text',
+          senderRole: 'system',
+          senderName: null,
+          senderAvatar: null,
+          status: 'sent',
+          metadata: metadata || {},
+          publishedAt: new Date(),
+        },
+      });
+
+      if (io && message) {
+        const messagePayload = {
+          ...message,
+          conversationId: message.chatId,
+        };
+        io.to(`conv:${resolvedDocumentId}`).emit('message:new', messagePayload);
+        if (workspaceId) {
+          io.to(`ws:${workspaceId}`).emit('message:new', messagePayload);
+        }
+      }
+    };
+
+    const beforeAssignee = getAssigneeSnapshot(chatBefore);
+    const afterAssignee = getAssigneeSnapshot(chatAfter);
+    if (!sameActorRef(beforeAssignee.ref, afterAssignee.ref)) {
+      const content = afterAssignee.displayName ? `Assigned to ${afterAssignee.displayName}` : 'Unassigned';
+      await createSystemMessage({
+        content,
+        metadata: {
+          type: 'assignment',
+          assigneeRef: afterAssignee.ref,
+          actorUserId: userId || null,
+        },
+      });
+    }
+
+    const beforeLabels = getLabelsSnapshot(chatBefore);
+    const afterLabels = getLabelsSnapshot(chatAfter);
+    if (!sameSnapshotArray(beforeLabels.ids, afterLabels.ids)) {
+      const content = afterLabels.keys.length > 0 ? `Labels: ${afterLabels.keys.join(', ')}` : 'Labels cleared';
+      await createSystemMessage({
+        content,
+        metadata: {
+          type: 'labels',
+          keys: afterLabels.keys,
+          labelIds: afterLabels.ids,
+          actorUserId: userId || null,
+        },
+      });
+    }
+
+    return response;
   },
 
   async delete(ctx) {
