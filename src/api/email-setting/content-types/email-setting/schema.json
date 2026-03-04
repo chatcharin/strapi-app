@@ -1,0 +1,47 @@
+{
+  "kind": "collectionType",
+  "collectionName": "email_settings",
+  "info": {
+    "singularName": "email-setting",
+    "pluralName": "email-settings",
+    "displayName": "Email Setting",
+    "description": "SMTP and email defaults"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "workspace": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::workspace.workspace",
+      "required": true
+    },
+    "smtpHost": {
+      "type": "string"
+    },
+    "smtpPort": {
+      "type": "integer"
+    },
+    "smtpSecure": {
+      "type": "boolean",
+      "default": false
+    },
+    "smtpUser": {
+      "type": "string"
+    },
+    "smtpPass": {
+      "type": "string"
+    },
+    "emailFrom": {
+      "type": "string"
+    },
+    "emailReplyTo": {
+      "type": "string"
+    },
+    "isActive": {
+      "type": "boolean",
+      "default": true
+    }
+  }
+}

@@ -4,6 +4,26 @@ module.exports = {
   routes: [
     {
       method: 'GET',
+      path: '/meta/callback',
+      handler: 'meta.callback',
+      config: {
+        auth: false,
+        policies: [],
+        middlewares: [],
+      },
+    },
+    {
+      method: 'POST',
+      path: '/meta/callback',
+      handler: 'meta.callback',
+      config: {
+        auth: false,
+        policies: [],
+        middlewares: [],
+      },
+    },
+    {
+      method: 'GET',
       path: '/meta/callback/:settingId',
       handler: 'meta.callback',
       config: {

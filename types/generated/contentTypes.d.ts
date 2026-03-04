@@ -474,6 +474,10 @@ export interface ApiAgentAgent extends Struct.CollectionTypeSchema {
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    workspace: Schema.Attribute.Relation<
+      'manyToOne',
+      'api::workspace.workspace'
+    >;
   };
 }
 
@@ -654,6 +658,48 @@ export interface ApiDocumentDocument extends Struct.CollectionTypeSchema {
       'manyToOne',
       'api::workspace.workspace'
     >;
+  };
+}
+
+export interface ApiEmailSettingEmailSetting
+  extends Struct.CollectionTypeSchema {
+  collectionName: 'email_settings';
+  info: {
+    description: 'SMTP and email defaults';
+    displayName: 'Email Setting';
+    pluralName: 'email-settings';
+    singularName: 'email-setting';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    emailFrom: Schema.Attribute.String;
+    emailReplyTo: Schema.Attribute.String;
+    isActive: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<true>;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::email-setting.email-setting'
+    > &
+      Schema.Attribute.Private;
+    publishedAt: Schema.Attribute.DateTime;
+    smtpHost: Schema.Attribute.String;
+    smtpPass: Schema.Attribute.String;
+    smtpPort: Schema.Attribute.Integer;
+    smtpSecure: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
+    smtpUser: Schema.Attribute.String;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    workspace: Schema.Attribute.Relation<
+      'manyToOne',
+      'api::workspace.workspace'
+    > &
+      Schema.Attribute.Required;
   };
 }
 
@@ -1874,6 +1920,7 @@ declare module '@strapi/strapi' {
       'api::chat-widget-setting.chat-widget-setting': ApiChatWidgetSettingChatWidgetSetting;
       'api::chat.chat': ApiChatChat;
       'api::document.document': ApiDocumentDocument;
+      'api::email-setting.email-setting': ApiEmailSettingEmailSetting;
       'api::email-verification.email-verification': ApiEmailVerificationEmailVerification;
       'api::ex-chat.ex-chat': ApiExChatExChat;
       'api::ex-message.ex-message': ApiExMessageExMessage;

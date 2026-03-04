@@ -32,6 +32,11 @@
     "permissions": {
       "type": "json"
     },
+    "workspace": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::workspace.workspace"
+    },
     "knowledgeBase": {
       "type": "json"
     },

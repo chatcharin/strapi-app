@@ -94,12 +94,26 @@ module.exports = createCoreController('api::invitation.invitation', ({ strapi })
           inviteUrl,
         });
 
-        const result = await strapi.plugin('email').service('email').send({
-          to: email,
-          from: fromEmail,
-          subject: 'คำเชิญเข้าร่วม Workspace',
-          html: emailTemplates.getInvitationTemplate(workspace.workspace_name, inviteUrl),
-        });
+        const emailService = strapi.service('api::email-setting.email-setting');
+        const html = emailTemplates.getInvitationTemplate(workspace.workspace_name, inviteUrl);
+
+        let result;
+        if (emailService && emailService.sendEmail) {
+          result = await emailService.sendEmail({
+            to: email,
+            from: fromEmail,
+            subject: 'คำเชิญเข้าร่วม Workspace',
+            html,
+            workspaceId: workspaceIdInt,
+          });
+        } else {
+          result = await strapi.plugin('email').service('email').send({
+            to: email,
+            from: fromEmail,
+            subject: 'คำเชิญเข้าร่วม Workspace',
+            html,
+          });
+        }
 
         if (result) {
           strapi.log.info('Invitation email send result', result);

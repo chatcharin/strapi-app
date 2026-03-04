@@ -18,7 +18,7 @@ module.exports = {
       return;
     }
 
-    const baseUrl = process.env.BASE_URL || process.env.STRAPI_URL || 'http://localhost:1337';
+    const baseUrl = process.env.FRONTEND_URL || process.env.STRAPI_URL || 'http://localhost:1337';
     const webhookUrl = `${baseUrl}/api/meta/callback/${result.documentId}`;
     const verifyToken = result.verifyToken || generateVerifyToken();
 

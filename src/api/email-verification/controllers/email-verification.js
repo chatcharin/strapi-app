@@ -6,6 +6,10 @@ const emailTemplates = require('../services/email-templates');
 module.exports = createCoreController('api::email-verification.email-verification', ({ strapi }) => ({
   async sendOtp(ctx) {
     const { email } = ctx.request.body;
+    const workspaceIdFromBody = ctx.request.body && ctx.request.body.workspaceId;
+    const workspaceIdFromHeader =
+      (ctx.request && ctx.request.headers && (ctx.request.headers['x-workspace-id'] || ctx.request.headers['X-Workspace-Id'])) || null;
+    const workspaceId = workspaceIdFromBody || workspaceIdFromHeader || null;
 
     if (!email) {
       return ctx.badRequest('Email is required');
@@ -22,19 +26,31 @@ module.exports = createCoreController('api::email-verification.email-verificatio
 
       if (existing.length > 0) {
         await strapi.entityService.update('api::email-verification.email-verification', existing[0].id, {
-          data: { otp, expiresAt },
+          data: { otp, expiresAt, ...(workspaceId ? { workspace: workspaceId } : {}) },
         });
       } else {
         await strapi.entityService.create('api::email-verification.email-verification', {
-          data: { email, otp, expiresAt, consumed: false },
+          data: { email, otp, expiresAt, consumed: false, ...(workspaceId ? { workspace: workspaceId } : {}) },
         });
       }
 
-      await strapi.plugin('email').service('email').send({
-        to: email,
-        subject: 'รหัสยืนยันอีเมลของคุณ',
-        html: emailTemplates.getOtpTemplate(otp),
-      });
+      const emailService = strapi.service('api::email-setting.email-setting');
+      const html = emailTemplates.getOtpTemplate(otp);
+
+      if (emailService && emailService.sendEmail) {
+        await emailService.sendEmail({
+          to: email,
+          subject: 'รหัสยืนยันอีเมลของคุณ',
+          html,
+          workspaceId,
+        });
+      } else {
+        await strapi.plugin('email').service('email').send({
+          to: email,
+          subject: 'รหัสยืนยันอีเมลของคุณ',
+          html,
+        });
+      }
 
       ctx.send({ message: 'OTP sent successfully' });
     } catch (error) {

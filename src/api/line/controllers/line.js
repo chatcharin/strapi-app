@@ -39,8 +39,27 @@ module.exports = {
 
     for (const event of events) {
       try {
-        if (!event || event.type !== 'message') continue;
-        if (!event.message || event.message.type !== 'text') continue;
+        if (!event) {
+          strapi.log.info('[LINE] Skip: empty event');
+          continue;
+        }
+
+        if (event.type !== 'message') {
+          strapi.log.info(`[LINE] Skip: unsupported event.type=${event.type || ''} webhookEventId=${event.webhookEventId || ''}`);
+          continue;
+        }
+
+        if (!event.message) {
+          strapi.log.info(`[LINE] Skip: missing event.message webhookEventId=${event.webhookEventId || ''}`);
+          continue;
+        }
+
+        if (event.message.type !== 'text') {
+          strapi.log.info(
+            `[LINE] Skip: unsupported message.type=${event.message.type || ''} webhookEventId=${event.webhookEventId || ''}`
+          );
+          continue;
+        }
 
         // Deduplicate inbound webhook redelivery using webhookEventId
         if (event.webhookEventId) {
@@ -54,7 +73,10 @@ module.exports = {
         }
 
         const lineUserId = event.source && event.source.userId;
-        if (!lineUserId) continue;
+        if (!lineUserId) {
+          strapi.log.info(`[LINE] Skip: missing source.userId webhookEventId=${event.webhookEventId || ''}`);
+          continue;
+        }
 
         const lineVisitorKey = `line:${setting.documentId}:${lineUserId}`;
         const legacyLineVisitorKey = `line:${lineUserId}`;
@@ -145,24 +167,36 @@ module.exports = {
           });
         }
 
-        const message = await strapi.db.query('api::ex-message.ex-message').create({
-          data: {
-            chatId: chat.documentId,
-            channel: 'line',
-            content: event.message.text,
-            contentType: 'text',
-            senderRole: 'visitor',
-            senderName: visitorName,
-            senderAvatar: visitorAvatar,
-            status: 'sent',
-            publishedAt: new Date(),
-            lineEventId: event.webhookEventId || null,
-            metadata: event.webhookEventId ? { lineEventId: event.webhookEventId } : undefined,
-          },
-        });
+        let message;
+        try {
+          message = await strapi.db.query('api::ex-message.ex-message').create({
+            data: {
+              chatId: chat.documentId,
+              channel: 'line',
+              content: event.message.text,
+              contentType: 'text',
+              senderRole: 'visitor',
+              senderName: visitorName,
+              senderAvatar: visitorAvatar,
+              status: 'sent',
+              publishedAt: new Date(),
+              lineEventId: event.webhookEventId || null,
+              metadata: event.webhookEventId ? { lineEventId: event.webhookEventId } : undefined,
+            },
+          });
+        } catch (createErr) {
+          strapi.log.error(
+            `[LINE] Failed to persist ex-message: ${createErr.message} webhookEventId=${event.webhookEventId || ''} chat=${chat && chat.documentId ? chat.documentId : ''}`
+          );
+          continue;
+        }
 
         if (io) {
-          io.to(`conv:${chat.documentId}`).emit('message:new', { ...message, conversationId: message.chatId });
+          const messagePayload = { ...message, conversationId: message.chatId };
+          io.to(`conv:${chat.documentId}`).emit('message:new', messagePayload);
+          if (chat.workspaceId) {
+            io.to(`ws:${chat.workspaceId}`).emit('message:new', messagePayload);
+          }
         }
 
         const updatedChat = await strapi.db.query('api::ex-chat.ex-chat').update({

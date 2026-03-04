@@ -13,7 +13,7 @@ module.exports = {
       return;
     }
 
-    const baseUrl = process.env.BASE_URL || process.env.STRAPI_URL || 'http://localhost:1337';
+    const baseUrl = process.env.FRONTEND_URL || process.env.STRAPI_URL || 'http://localhost:1337';
     const webhookUrl = `${baseUrl}/api/line/callback/${result.documentId}`;
 
     const updateData = { webhookUrl };
