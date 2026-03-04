@@ -52,6 +52,92 @@ module.exports = createCoreController('api::invitation.invitation', ({ strapi })
         return ctx.badRequest('Workspace not found');
       }
 
+      // Enforce inviter must be a member of this workspace
+      const membership = await strapi.entityService.findMany('api::workspace-role.workspace-role', {
+        fields: ['id'],
+        filters: {
+          workspace: workspaceIdInt,
+          users: { id: { $eq: userId } },
+        },
+        limit: 1,
+      });
+
+      if (!membership || membership.length === 0) {
+        // Fallback: if user is workspace owner but membership table not bootstrapped yet, auto-create/ensure owner role
+        const ws = await strapi.entityService.findOne('api::workspace.workspace', workspaceIdInt, {
+          populate: { owner: { fields: ['id'] } },
+        });
+
+        const ownerId = ws && ws.owner && ws.owner.id;
+        strapi.log.info(
+          `[INVITATION] create: no membership found userId=${userId} workspaceId=${workspaceIdInt} workspaceOwnerId=${ownerId || '-'} resolvedWorkspaceIdentifier=${resolvedWorkspaceId}`
+        );
+        if (!ownerId || ownerId !== userId) {
+          try {
+            const anyMembership = await strapi.entityService.findMany('api::workspace-role.workspace-role', {
+              fields: ['id', 'role', 'is_administrator'],
+              populate: { workspace: { fields: ['id', 'documentId', 'workspace_name'] } },
+              filters: { users: { id: { $eq: userId } } },
+              limit: 20,
+            });
+
+            const summary = (anyMembership || []).map((r) => {
+              const w = r.workspace;
+              return {
+                workspaceId: w && w.id,
+                workspaceDocumentId: w && w.documentId,
+                role: r.role,
+                is_administrator: r.is_administrator,
+              };
+            });
+
+            strapi.log.warn(
+              `[INVITATION] create forbidden debug: userId=${userId} memberships=${JSON.stringify(summary)}`
+            );
+          } catch (e) {
+            strapi.log.warn(`[INVITATION] create forbidden debug failed: ${e.message}`);
+          }
+
+          strapi.log.warn(
+            `[INVITATION] create forbidden: user is not workspace member/owner userId=${userId} workspaceId=${workspaceIdInt} workspaceOwnerId=${ownerId || '-'} resolvedWorkspaceIdentifier=${resolvedWorkspaceId}`
+          );
+          return ctx.forbidden('You are not a member of this workspace');
+        }
+
+        const existingOwnerRoles = await strapi.entityService.findMany('api::workspace-role.workspace-role', {
+          fields: ['id'],
+          filters: {
+            workspace: workspaceIdInt,
+            role: { $eq: 'owner' },
+          },
+          limit: 1,
+        });
+
+        const ownerRole = existingOwnerRoles && existingOwnerRoles[0];
+        if (ownerRole && ownerRole.id) {
+          strapi.log.info(
+            `[INVITATION] create: bootstrapping owner membership by connecting userId=${userId} to existing ownerRoleId=${ownerRole.id} workspaceId=${workspaceIdInt}`
+          );
+          await strapi.entityService.update('api::workspace-role.workspace-role', ownerRole.id, {
+            data: { users: { connect: [{ id: userId }] } },
+          });
+        } else {
+          strapi.log.info(
+            `[INVITATION] create: bootstrapping owner membership by creating owner role and connecting userId=${userId} workspaceId=${workspaceIdInt}`
+          );
+          await strapi.entityService.create('api::workspace-role.workspace-role', {
+            data: {
+              role: 'owner',
+              is_administrator: true,
+              is_default: false,
+              is_deletable: false,
+              workspace: workspaceIdInt,
+              users: { connect: [{ id: userId }] },
+            },
+          });
+        }
+      }
+
       const workspace = await strapi.entityService.findOne('api::workspace.workspace', workspaceIdInt);
       if (!workspace) {
         return ctx.badRequest('Workspace not found');
@@ -62,9 +148,16 @@ module.exports = createCoreController('api::invitation.invitation', ({ strapi })
         return ctx.badRequest('Role not found');
       }
 
-      const role = await strapi.entityService.findOne('api::workspace-role.workspace-role', roleIdInt);
+      const role = await strapi.entityService.findOne('api::workspace-role.workspace-role', roleIdInt, {
+        populate: { workspace: { fields: ['id'] } },
+      });
       if (!role) {
         return ctx.badRequest('Role not found');
+      }
+
+      const roleWorkspaceId = role.workspace && role.workspace.id;
+      if (roleWorkspaceId && roleWorkspaceId !== workspaceIdInt) {
+        return ctx.badRequest('Role does not belong to this workspace');
       }
 
       const token = crypto.randomBytes(32).toString('hex');
@@ -140,20 +233,29 @@ module.exports = createCoreController('api::invitation.invitation', ({ strapi })
   },
 
   async acceptInvitation(ctx) {
-    const { token } = ctx.request.body;
+    const body = ctx.request.body?.data || ctx.request.body;
+    const { token } = body || {};
 
     if (!token) {
       return ctx.badRequest('Token is required');
     }
 
+    const userId = ctx.state && ctx.state.user && ctx.state.user.id;
+    if (!userId) {
+      return ctx.unauthorized('Login required');
+    }
+
     try {
       const invitation = await strapi.entityService.findMany('api::invitation.invitation', {
         filters: { token, consumed: false },
-        populate: ['workspace', 'workspace_role'],
+        populate: {
+          workspace: { fields: ['id', 'documentId', 'workspace_name'] },
+          workspace_role: { fields: ['id', 'documentId', 'role'] },
+        },
         limit: 1,
       });
 
-      if (invitation.length === 0) {
+      if (!invitation || invitation.length === 0) {
         return ctx.badRequest('Invalid or expired invitation');
       }
 
@@ -163,13 +265,65 @@ module.exports = createCoreController('api::invitation.invitation', ({ strapi })
         return ctx.badRequest('Invitation has expired');
       }
 
+      const workspace = record.workspace;
+      if (!workspace || !workspace.id) {
+        return ctx.badRequest('Workspace not found');
+      }
+
+      const invitationRole = record.workspace_role;
+      if (!invitationRole || !invitationRole.id) {
+        return ctx.badRequest('Invitation is missing workspace role');
+      }
+
+      const roleEntity = await strapi.entityService.findOne(
+        'api::workspace-role.workspace-role',
+        invitationRole.id,
+        {
+          populate: {
+            workspace: { fields: ['id'] },
+            users: { fields: ['id'] },
+          },
+        }
+      );
+
+      if (!roleEntity) {
+        return ctx.badRequest('Role not found');
+      }
+
+      const roleWorkspaceId = roleEntity.workspace && roleEntity.workspace.id;
+      if (roleWorkspaceId && Number(roleWorkspaceId) !== Number(workspace.id)) {
+        return ctx.badRequest('Invitation role does not belong to workspace');
+      }
+
+      const existingUsers = Array.isArray(roleEntity.users) ? roleEntity.users : [];
+      const alreadyMember = existingUsers.some((u) => Number(u && u.id) === Number(userId));
+      if (!alreadyMember) {
+        await strapi.entityService.update('api::workspace-role.workspace-role', roleEntity.id, {
+          data: {
+            users: { connect: [{ id: userId }] },
+          },
+        });
+      }
+
+      await strapi.entityService.update('api::invitation.invitation', record.id, {
+        data: { consumed: true },
+      });
+
       ctx.send({
-        message: 'Invitation valid',
-        workspace: record.workspace,
-        role: record.workspace_role,
-        email: record.email,
+        message: 'Invitation accepted',
+        workspace: {
+          id: workspace.id,
+          documentId: workspace.documentId,
+          workspace_name: workspace.workspace_name,
+        },
+        role: {
+          id: invitationRole.id,
+          documentId: invitationRole.documentId,
+          role: invitationRole.role,
+        },
       });
     } catch (error) {
+      strapi.log.error(`Failed to accept invitation: ${error.message}`);
       ctx.badRequest('Failed to accept invitation');
     }
   },
