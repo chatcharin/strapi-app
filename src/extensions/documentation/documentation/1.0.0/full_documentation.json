@@ -14,7 +14,7 @@
       "name": "Apache 2.0",
       "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
     },
-    "x-generation-date": "2026-03-05T08:59:37.995Z"
+    "x-generation-date": "2026-03-11T01:38:11.413Z"
   },
   "x-strapi-config": {
     "plugins": [
@@ -12552,6 +12552,9 @@
                         "dataMasking": {},
                         "parsing": {},
                         "chunking": {},
+                        "ocr_api_enable": {
+                          "type": "boolean"
+                        },
                         "fileTypes": {},
                         "documents": {
                           "type": "array",
@@ -15156,6 +15159,9 @@
                                   "dataMasking": {},
                                   "parsing": {},
                                   "chunking": {},
+                                  "ocr_api_enable": {
+                                    "type": "boolean"
+                                  },
                                   "fileTypes": {},
                                   "documents": {
                                     "type": "array",
@@ -17782,6 +17788,9 @@
                                         "dataMasking": {},
                                         "parsing": {},
                                         "chunking": {},
+                                        "ocr_api_enable": {
+                                          "type": "boolean"
+                                        },
                                         "fileTypes": {},
                                         "documents": {
                                           "type": "array",
@@ -20804,6 +20813,9 @@
                         "dataMasking": {},
                         "parsing": {},
                         "chunking": {},
+                        "ocr_api_enable": {
+                          "type": "boolean"
+                        },
                         "fileTypes": {},
                         "documents": {
                           "type": "array",
@@ -21995,6 +22007,9 @@
               "dataMasking": {},
               "parsing": {},
               "chunking": {},
+              "ocr_api_enable": {
+                "type": "boolean"
+              },
               "fileTypes": {},
               "documents": {
                 "type": "array",
@@ -26026,6 +26041,9 @@
                         "dataMasking": {},
                         "parsing": {},
                         "chunking": {},
+                        "ocr_api_enable": {
+                          "type": "boolean"
+                        },
                         "fileTypes": {},
                         "documents": {
                           "type": "array",
@@ -28572,6 +28590,9 @@
                                   "dataMasking": {},
                                   "parsing": {},
                                   "chunking": {},
+                                  "ocr_api_enable": {
+                                    "type": "boolean"
+                                  },
                                   "fileTypes": {},
                                   "documents": {
                                     "type": "array",
@@ -31270,6 +31291,9 @@
                                   "dataMasking": {},
                                   "parsing": {},
                                   "chunking": {},
+                                  "ocr_api_enable": {
+                                    "type": "boolean"
+                                  },
                                   "fileTypes": {},
                                   "documents": {
                                     "type": "array",
@@ -34879,6 +34903,9 @@
                                     "dataMasking": {},
                                     "parsing": {},
                                     "chunking": {},
+                                    "ocr_api_enable": {
+                                      "type": "boolean"
+                                    },
                                     "fileTypes": {},
                                     "documents": {
                                       "type": "array",
@@ -37552,6 +37579,9 @@
                         "dataMasking": {},
                         "parsing": {},
                         "chunking": {},
+                        "ocr_api_enable": {
+                          "type": "boolean"
+                        },
                         "fileTypes": {},
                         "documents": {
                           "type": "array",
@@ -38654,6 +38684,9 @@
               "dataMasking": {},
               "parsing": {},
               "chunking": {},
+              "ocr_api_enable": {
+                "type": "boolean"
+              },
               "fileTypes": {},
               "documents": {
                 "type": "array",
@@ -38762,6 +38795,9 @@
           "dataMasking": {},
           "parsing": {},
           "chunking": {},
+          "ocr_api_enable": {
+            "type": "boolean"
+          },
           "fileTypes": {},
           "documents": {
             "type": "array",
@@ -38835,6 +38871,9 @@
                     "dataMasking": {},
                     "parsing": {},
                     "chunking": {},
+                    "ocr_api_enable": {
+                      "type": "boolean"
+                    },
                     "fileTypes": {},
                     "documents": {
                       "type": "array",
@@ -43102,6 +43141,9 @@
                                       "dataMasking": {},
                                       "parsing": {},
                                       "chunking": {},
+                                      "ocr_api_enable": {
+                                        "type": "boolean"
+                                      },
                                       "fileTypes": {},
                                       "documents": {
                                         "type": "array",
@@ -46517,6 +46559,9 @@
                         "dataMasking": {},
                         "parsing": {},
                         "chunking": {},
+                        "ocr_api_enable": {
+                          "type": "boolean"
+                        },
                         "fileTypes": {},
                         "documents": {
                           "type": "array",
@@ -49114,6 +49159,9 @@
                                   "dataMasking": {},
                                   "parsing": {},
                                   "chunking": {},
+                                  "ocr_api_enable": {
+                                    "type": "boolean"
+                                  },
                                   "fileTypes": {},
                                   "documents": {
                                     "type": "array",
@@ -51864,6 +51912,9 @@
                                   "dataMasking": {},
                                   "parsing": {},
                                   "chunking": {},
+                                  "ocr_api_enable": {
+                                    "type": "boolean"
+                                  },
                                   "fileTypes": {},
                                   "documents": {
                                     "type": "array",
@@ -54821,6 +54872,9 @@
                                     "dataMasking": {},
                                     "parsing": {},
                                     "chunking": {},
+                                    "ocr_api_enable": {
+                                      "type": "boolean"
+                                    },
                                     "fileTypes": {},
                                     "documents": {
                                       "type": "array",
@@ -57422,6 +57476,9 @@
                                   "dataMasking": {},
                                   "parsing": {},
                                   "chunking": {},
+                                  "ocr_api_enable": {
+                                    "type": "boolean"
+                                  },
                                   "fileTypes": {},
                                   "documents": {
                                     "type": "array",

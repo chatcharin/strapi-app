@@ -129,3 +129,153 @@ CONTACT_RECEIVER_EMAIL=admin@example.com
   - อัปเดตได้เฉพาะ field: `full_name`, `bio`, `avatar_url`
 - `DELETE /api/users/me`
   - ลบบัญชีของตัวเองเท่านั้น
+
+## 📄 Future Design: Selective OCR รายหน้า + Page Review Workflow
+
+ส่วนนี้เป็นข้อเสนอสำหรับการพัฒนาต่อในอนาคต เพื่อให้ `mx-front`, `Strapi`, `python-service`, และ `mx-agent-api` ทำงานร่วมกันสำหรับการตรวจคุณภาพผล document processing และสั่ง OCR เฉพาะบางหน้าได้
+
+เป้าหมาย:
+
+- ให้ผู้ใช้เลือกบางหน้าที่ต้องการ OCR ซ้ำได้จาก `mx-front`
+- ให้ระบบเก็บสถานะการตรวจคุณภาพรายหน้าใน Strapi
+- ให้ `mx-agent-api` ตั้งเวลามาตรวจผลลัพธ์หลัง ingestion ได้
+- ให้ระบบเลือกได้ว่าหน้าไหนควร:
+  - ใช้ผลเดิมต่อ
+  - ทำ local OCR ใหม่
+  - ส่งต่อไปใช้ LLM API OCR
+
+### ภาพรวม workflow ที่แนะนำ
+
+1. เอกสารถูกประมวลผลครั้งแรกโดย `python-service`
+2. แต่ละหน้ามี page text และ metadata ถูกเก็บใน OpenSearch
+3. `mx-front` เปิดให้ผู้ใช้ดูผลรายหน้าและกด flag หน้าที่มีปัญหา
+4. Strapi เก็บ workflow state ว่าหน้าไหน:
+   - ผ่านแล้ว
+   - ต้อง review
+   - ต้อง OCR ใหม่
+   - ต้องใช้ LLM OCR
+5. `mx-agent-api` มี scheduled job มาตรวจคุณภาพผลลัพธ์เป็นรอบ ๆ
+6. agent หรือ user สามารถสร้างงาน reprocess เฉพาะบางหน้าได้
+7. `python-service` reprocess เฉพาะหน้าที่ถูกเลือก และอัปเดตผลกลับเข้า index
+
+### สิ่งที่แนะนำให้กำหนดจาก mx-front
+
+ในหน้า Document/Page editor ของ `mx-front` ควรมีความสามารถต่อไปนี้:
+
+- แสดงรายการหน้าทั้งหมดของเอกสาร
+- เปิดดู text รายหน้าได้
+- กดเลือกหน้าที่ต้องการ OCR ใหม่ได้หลายหน้า
+- เลือก OCR mode รายหน้าหรือราย batch ได้ เช่น:
+  - `tesseract_cli`
+  - `easyocr`
+  - `llm_api_ocr`
+- ใส่เหตุผลในการส่ง OCR ซ้ำ เช่น:
+  - `text_incomplete`
+  - `thai_text_garbled`
+  - `blank_page_result`
+  - `manual_review`
+- แสดงสถานะของแต่ละหน้า เช่น:
+  - `accepted`
+  - `needs_review`
+  - `queued_for_retry`
+  - `retrying`
+  - `completed`
+  - `failed`
+
+### สิ่งที่แนะนำให้ Strapi เก็บ
+
+ในอนาคตแนะนำให้ Strapi มีข้อมูลระดับ page review / OCR job เพิ่มจากระดับ Knowledge Base เดิม
+
+ตัวอย่าง entity ที่แนะนำ:
+
+- `document-page-review`
+- `document-page-ocr-job`
+- หรือเก็บใน component / relation ที่ผูกกับ `document` ก็ได้ หากต้องการเริ่มแบบง่ายก่อน
+
+### ฟิลด์ที่แนะนำสำหรับ page review
+
+- `document`
+- `knowledge_base`
+- `filename`
+- `page_number`
+- `source_page_id`
+- `review_status`
+- `review_reason`
+- `review_score`
+- `suggested_action`
+- `selected_ocr_engine`
+- `use_llm_ocr`
+- `requested_by`
+- `requested_at`
+- `processed_at`
+- `last_error`
+- `is_locked`
+
+ค่าที่แนะนำสำหรับ `review_status`:
+
+- `accepted`
+- `needs_review`
+- `queued_for_retry`
+- `retrying`
+- `completed`
+- `failed`
+
+ค่าที่แนะนำสำหรับ `suggested_action`:
+
+- `keep_current_result`
+- `retry_local_ocr`
+- `retry_full_page_ocr`
+- `retry_with_easyocr`
+- `retry_with_tesseract`
+- `escalate_to_llm_ocr`
+
+### หน้าที่ของ mx-agent-api ในอนาคต
+
+ใน `/home/chatcharin/n8n/mx-agent-api` สามารถเพิ่ม scheduled workflow ได้ เช่น:
+
+- ดึง page results ที่เพิ่ง ingest เสร็จ
+- ตรวจ heuristic หรือใช้ model ช่วยประเมินคุณภาพข้อความรายหน้า
+- เขียนผลการ review กลับเข้า Strapi
+- สร้างคิว reprocess เฉพาะหน้าที่มีปัญหา
+- แนะนำว่าควรใช้ local OCR หรือ LLM OCR
+
+ตัวอย่างเหตุผลที่ agent ควร flag หน้า:
+
+- ข้อความว่างหรือสั้นผิดปกติ
+- อัตราอักขระเพี้ยนสูง
+- ภาษาไทยเว้นวรรค/encoding ผิดรูปมาก
+- หน้าเดียวกันให้ผลต่างจาก PDF text extraction อย่างผิดปกติ
+- ผู้ใช้เคยแก้ไข text หน้านั้นด้วยมือหลายครั้ง
+
+### แนวทาง permissions และ workflow state
+
+สำหรับผู้ใช้ใน `mx-front` อาจกำหนดสิทธิ์แยกเป็น:
+
+- ดูผล OCR รายหน้า
+- flag หน้าเพื่อ review
+- สั่ง OCR ใหม่เฉพาะบางหน้า
+- อนุมัติให้ใช้ LLM OCR
+- ดูประวัติการ reprocess
+
+Strapi ควรเป็นตัวกลางเก็บ workflow state เพื่อให้:
+
+- `mx-front` อ่าน/แก้สถานะได้ตามสิทธิ์
+- `mx-agent-api` เขียน recommendation หรือ job queue ได้
+- `python-service` อ่านคิวงานแล้วทำ reprocess ได้
+
+### ข้อเสนอเชิง implementation
+
+- อย่าให้การ OCR ใหม่หนึ่งหน้าไปบังคับ reingest ทั้งเอกสาร
+- ใช้ `page_number` และ `source_page_id` เป็นตัวอ้างอิงหลัก
+- เก็บ audit trail ว่า page นี้เคยผ่าน OCR engine อะไรมาบ้าง
+- หากมีการแทนที่ผล OCR เดิม ควรเก็บ `previous_text` หรือ revision metadata ไว้ด้วย
+- แยกสถานะ `agent_suggested` ออกจาก `user_approved` เพื่อให้ workflow ชัดเจน
+
+### สรุป design ที่แนะนำ
+
+- `mx-front` ใช้สำหรับ review และเลือกบางหน้าที่ต้อง OCR ใหม่
+- `Strapi` ใช้เก็บสถานะ review และ job queue รายหน้า
+- `python-service` ใช้ทำ OCR/reindex เฉพาะหน้าที่ถูกเลือก
+- `mx-agent-api` ใช้ตรวจคุณภาพผลลัพธ์เป็นรอบ ๆ และแนะนำ action อัตโนมัติ
+
+แนวทางนี้จะทำให้ระบบรองรับการ OCR เฉพาะบางหน้าได้ โดยไม่ต้อง reprocess เอกสารทั้งไฟล์ทุกครั้ง

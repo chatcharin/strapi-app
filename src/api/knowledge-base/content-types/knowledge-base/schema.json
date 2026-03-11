@@ -38,6 +38,10 @@
         "chunking": {
             "type": "json"
         },
+        "ocr_api_enable": {
+            "type": "boolean",
+            "default": false
+        },
         "fileTypes": {
             "type": "json"
         },

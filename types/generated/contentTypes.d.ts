@@ -981,6 +981,8 @@ export interface ApiKnowledgeBaseKnowledgeBase
     name: Schema.Attribute.String &
       Schema.Attribute.Required &
       Schema.Attribute.Unique;
+    ocr_api_enable: Schema.Attribute.Boolean &
+      Schema.Attribute.DefaultTo<false>;
     parsing: Schema.Attribute.JSON;
     publishedAt: Schema.Attribute.DateTime;
     selectedGroupIds: Schema.Attribute.JSON;
